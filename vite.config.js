@@ -1,12 +1,15 @@
+import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import { ViteMinifyPlugin } from 'vite-plugin-minify'
-import { resolve } from 'path'
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
+
 
 
 export default defineConfig({
     root: 'src',
     plugins: [
         ViteMinifyPlugin({}),
+        ViteImageOptimizer(),
     ],
     build: {
         minify: true,
