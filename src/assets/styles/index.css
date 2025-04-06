@@ -64,6 +64,7 @@ body {
 .rocket {
     display: inline-block;
     animation: rocket-launching 5s linear infinite;
+    animation-delay: 3s;
 }
 
 @keyframes rocket-launching {
