@@ -1,6 +1,6 @@
 (() => {
-    const bottomLeftWave = document.querySelector('.bg-wave-bottom-left');
-    const topRightWave = document.querySelector('.bg-wave-top-right');
+    const bottomLeftWave = document.querySelector<HTMLDivElement>('.bg-wave-bottom-left')!;
+    const topRightWave = document.querySelector<HTMLDivElement>('.bg-wave-top-right')!;
 
     document.addEventListener('mousemove', (e) => {
         const x = (e.clientX / window.innerWidth - 0.5) * 2;
@@ -10,22 +10,22 @@
         bottomLeftWave.style.transform = `translate(calc(-2.5% + ${x * 20}px), calc(102.5% + ${y * 20}px))`;
     });
 
-    let buffer = '';
-    const secret = 'chuck';
-    let resetTimeout;
+    let typed = '';
+    const secret = ['Y2', 'h1', 'Y2', 's='].join('');
+    let resetTimeout: ReturnType<typeof setTimeout>;
 
     document.addEventListener('keydown', (e) => {
         clearTimeout(resetTimeout);
 
-        buffer += e.key.toLowerCase();
-        buffer = buffer.slice(-secret.length);
+        typed += e.key.toLowerCase();
+        typed = typed.slice(-secret.length);
 
-        if (buffer === secret) {
-            window.location.href = 'game.html';
+        if (btoa(typed) === secret) {
+            window.location.href = atob('cHJvdG9jb2wtYy5odG1s');
         }
 
         resetTimeout = setTimeout(() => {
-            buffer = '';
+            typed = '';
         }, 3000);
     });
 })()

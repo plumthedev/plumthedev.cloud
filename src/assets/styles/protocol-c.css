@@ -50,7 +50,7 @@ table {
 
 .game-board {
     height: 100vh;
-    background-image: url("./images/background.png");
+    background-image: url("./../images/protocol-c.png");
     background-position: center bottom;
     background-size: cover;
     background-repeat: no-repeat;

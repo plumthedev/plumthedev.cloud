@@ -1,17 +1,17 @@
 (() => {
-    const gameBoardEl = document.getElementById("game-board");
-    const menuEl = document.getElementById("menu");
-    const playerEl = document.getElementById("player");
-    const obstaclesEl = document.getElementById("obstacles");
-    const scoreEl = document.getElementById("score");
-    const highScoreEl = document.getElementById("high-score");
+    const gameBoardEl = document.getElementById("game-board")!;
+    const menuEl = document.getElementById("menu")!;
+    const playerEl = document.getElementById("player")!;
+    const obstaclesEl = document.getElementById("obstacles")!;
+    const scoreEl = document.getElementById("score")!;
+    const highScoreEl = document.getElementById("high-score")!;
     let isGameStarted = false;
-    let gameStartedAt = null;
+    let gameStartedAt = Date.now();
     let isGameOver = false;
     let jumping = false;
     let obstaclesCount = 0;
     let score = 0;
-    let highScore = localStorage.getItem('high-score') || 0;
+    let highScore = Number(localStorage.getItem('high-score') || 0);
     let scoreMultiplier = 1;
 
     updateScore(0)
@@ -75,9 +75,9 @@
         }, 20);
     }
 
-    function updateScore(score) {
-        scoreEl.innerText = score;
-        highScoreEl.innerText = score > highScore ? score : highScore;
+    function updateScore(score: number) {
+        scoreEl.innerText = String(score);
+        highScoreEl.innerText = String(score > highScore ? score : highScore);
     }
 
     function startGame() {
@@ -124,19 +124,19 @@
         isGameOver = true;
         isGameStarted = false;
         obstaclesCount = 0;
-        highScore = localStorage.getItem('high-score') || 0
+        highScore = Number(localStorage.getItem('high-score') || 0)
         gameBoardEl.classList.add('game-over')
         menuEl.style.display = 'flex';
 
 
         if (!highScore) {
-            localStorage.setItem('high-score', score);
+            localStorage.setItem('high-score', String(score));
         }
 
         if (score > highScore) {
             highScore = score;
             localStorage.removeItem('high-score');
-            localStorage.setItem('high-score', score);
+            localStorage.setItem('high-score', String(score));
         }
     }
 })()
