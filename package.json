@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --open --host=0.0.0.0",
-    "prebuild": "rm -rf ./dist",
+    "cv:generate": "docker run --rm -v \"$(pwd)\":/data blang/latex:ctanfull sh -c \"pdflatex -output-directory=/tmp /data/src/assets/latex/cv.tex && mv /tmp/cv.pdf /data/src/public/cv/cv.pdf\"",
+    "prebuild": "rm -rf ./dist && npm run cv:generate",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },

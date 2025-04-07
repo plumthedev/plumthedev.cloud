@@ -1,0 +1,278 @@
+%------------PACKAGES----------------
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{verbatim} % reimplements the "verbatim" and "verbatim*" environments
+
+\usepackage{titlesec} % provides an interface to sectioning commands i.e. custom elements
+
+\usepackage{color} % provides both foreground and background color management
+\usepackage{xcolor}
+
+\usepackage{enumitem} % provides control over enumerate, itemize and description
+
+\usepackage{fancyhdr} % provides extensive facilities for constructing headers, footers and also controlling their use
+
+\usepackage{tabularx} % defines an environment tabularx, extension of "tabular" with an extra designator x, paragraph like column whose width automatically expands to fill the width of the environment
+
+\usepackage{latexsym} % provides mathematical symbols
+
+\usepackage{marvosym} % provides martin vogel's symbol font which contains various symbols
+
+\usepackage[empty]{fullpage} % sets margins to one inch and removes headers, footers etc..
+
+\usepackage[hidelinks]{hyperref} % removes color and shadow of hyperlinks
+
+\usepackage[normalem]{ulem} % provides "\ul" (uline) command which will break at line breaks
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel} % provides culturally determined typographical rules for wide range of languages
+%-----------------------------------------
+
+\input glyphtounicode % converts glyph names to unicode
+\pdfgentounicode=1 % ensures pdfs generated are ats readable
+
+%----------FONT OPTIONS-------------------
+\usepackage[default]{sourcesanspro} % uses the font source sans pro
+\urlstyle{same} % changes url font from default urlfont to font being used by the document
+%-----------------------------------------
+
+
+%----------MARGIN OPTIONS-----------------
+\pagestyle{fancy} % set page style to one configured by fancyhdr
+\fancyhf{} % clear all header and footer fields
+
+\renewcommand{\headrulewidth}{0in} % sets thickness of linerule under header to zero
+\renewcommand{\footrulewidth}{0in} % sets thickness of linerule over footer to zero
+
+\setlength{\tabcolsep}{0in} % sets thickness of column separator in tables to zero
+
+% origin of the document is one inch from the top and from and the left
+% oddsidemargin and evensidemargin both refer to the left margin
+% right margin is indirectly set using oddsidemargin
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\topmargin}{-0.5in}
+
+\addtolength{\textwidth}{1.0in} % sets width of text area in the page to one inch
+\addtolength{\textheight}{1.0in} % sets height of text area in the page to one inch
+
+\raggedbottom{} % makes all pages the height of current page, no extra vertical space added
+\raggedright{} % makes all pages the width of current page, no extra horizontal space added
+%------------------------------------------
+
+
+%--------SECTIONING COMMANDS---------
+% \titleformat{<command>}
+%   [<shape>]{<format>}{<label>}{<sep>}
+%     {<before-code>}[<after-code>]
+
+% command is the sectioning command to be redefined
+% shape is the style of the font; scshape stands for small caps style
+% format is the format to be applied to whole title- label and text; absent here
+% label defines the label
+% sep is the horizontal separation between label and title body
+% before-code is the code to be executed before
+% after-code is the code to be executed after
+
+\titleformat{\section}
+  {\scshape\large}{}
+    {0em}{\color{black}}[\color{black}\titlerule\vspace{0pt}]
+%-------------------------------------
+
+
+%--------REDEFINITIONS----------------
+% redefines the style of the bullet point
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+% redefines the underline depth to 2pt
+\renewcommand{\ULdepth}{2pt}
+%-------------------------------------
+
+
+%--------CUSTOM COMMANDS--------------
+%\vspace{} defines a vertical space of given size, modifying this in custom commands can help stretch or shrink resume to remove or add content
+
+% resumeItem renders a bullet point
+\newcommand{\resumeItem}[1]{
+  \item\small{#1}
+}
+
+% commands to start and end itemization of resumeItem, rightmargin set to 0.11in to avoid the overflow of resumetItem beyond whatever resumeItemHeading is being used
+\newcommand{\resumeItemListStart}{\begin{itemize}[rightmargin=0.11in]}
+\newcommand{\resumeItemListEnd}{\end{itemize}}
+
+% resumeSectionType renders a bolded type to be used under a section, used as skill type here, middle element is used to keep ":"s in the same vertical line
+\newcommand{\resumeSectionType}[2]{
+  \item\begin{tabular*}{0.96\textwidth}[t]{
+    p{0.25\linewidth}p{0.75\linewidth}
+  }
+    \textbf{#1} & #2
+  \end{tabular*}\vspace{-2pt}
+}
+
+% resumeTrioHeading renders three elements in three columns with second element being italicized and first element bolded, can be used for projects with three elements
+\newcommand{\resumeTrioHeading}[3]{
+  \item\small{
+    \begin{tabular*}{0.96\textwidth}[t]{
+      l@{\extracolsep{\fill}}c@{\extracolsep{\fill}}r
+    }
+      \textbf{#1} & \textit{#2} & #3
+    \end{tabular*}
+  }
+}
+
+% resumeQuadHeading renders four elements in a two columns with the second row being italicized and first element of first row bolded, can be used for experience and projects with four elements
+\newcommand{\resumeQuadHeading}[4]{
+  \item
+  \begin{tabular*}{0.96\textwidth}[t]{l@{\extracolsep{\fill}}r}
+    \textbf{#1} & #2 \\
+    \textit{\small#3} & \textit{\small #4} \\
+  \end{tabular*}
+}
+
+% resumeQuadHeadingChild renders the second row of resumeQuadHeading, can be used for experience if different roles in the same company need to added
+\newcommand{\resumeQuadHeadingChild}[2]{
+  \item
+  \begin{tabular*}{0.96\textwidth}[t]{l@{\extracolsep{\fill}}r}
+    \textbf{\small#1} & {\small#2} \\
+  \end{tabular*}
+}
+
+% commands to start and end itemization of resumeQuadHeading, lefmargin for left indent of 0.15in for resumeItems
+\newcommand{\resumeHeadingListStart}{
+  \begin{itemize}[leftmargin=0.15in, label={}]
+}
+\newcommand{\resumeHeadingListEnd}{\end{itemize}}
+%-------------------------------------------
+
+
+%__________________RESUME____________________
+% You can rearrange sections in any order you may prefer
+\begin{document}
+
+%-----------CONTACT DETAILS------------------
+% Make sure all the details are correct, you can add more links in the first row of second column if needed
+
+\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
+  \textbf{\Huge Kacper Pruszyński\vspace{2pt}} & % row = 1, col = 1
+  Location: Warsaw, Poland \\ % row = 1, col = 2
+  \href{https://plumthedev.cloud}{\uline{plumthedev.cloud}} $|$ % row = 2, col = 1
+  \href{https://linkedin.com/in/plumthedev}{\uline{LinkedIn}} $|$ % row = 2, col = 1
+  \href{https://github.com/plumthedev}{\uline{GitHub}} & % row = 2, col = 1
+  \href{mailto:kacper.pruszynski99@gmail.com}{\uline{kacper.pruszynski99@gmail.com}} $|$ % row = 2, col = 2
+  +48 507-218-730 \\ % row = 2, col = 2
+\end{tabular*}
+%--------------------------------------------
+
+
+%-----------SUMMARY--------------------------
+% Keep this short, simple and straigth to point
+
+\section{Intro}
+\small{
+  I'm a software engineer with 5+ years of experience building clean, scalable systems that solve real-world problems.
+  I care about architecture, impact, and doing things right.
+  \textbf{Mastery takes knowledge and work — and I show up with both.}
+}
+%--------------------------------------------
+
+
+%--------------SKILLS------------------------
+% Add or remove resumeSectionTypes according to your needs
+
+\section{Tech Stack}
+  \resumeHeadingListStart{}
+    \resumeSectionType{Languages \& Frameworks}{PHP, TypeScript, Laravel, NestJS}
+    \resumeSectionType{Databases \& Search}{MySQL, Redis, ElasticSearch}
+    \resumeSectionType{Cloud \& Infrastructure}{AWS, GCP, Linux, Docker}
+    \resumeSectionType{Distributed Systems}{Temporal.io, REST, GRPC, Protobuf, RabbitMQ}
+    \resumeSectionType{Tools \& Practices}{Git, CI/CD, Hexagonal Architecture, DDD}
+    \resumeSectionType{Languages Spoken}{English (B2), Polish (native)}
+  \resumeHeadingListEnd{}
+%--------------------------------------------
+
+\section{Career Highlights}
+\resumeHeadingListStart{}
+  \resumeQuadHeading{Backend Team Leader}{Aug 2023 -- Present}
+  {Telgani}{Remote -- Riyadh, Saudi Arabia}
+  	\vspace{1pt}
+  	\begin{quote}
+  	  \footnotesize\itshape
+  	  Leading the backend team of the largest car rental platform in the Middle East,\\
+  	  handling high-scale architecture and critical systems
+  	\end{quote}
+    \resumeItemListStart{}
+      \resumeItem{\textbf{Took ownership} of complex domains after two years of deep involvement}
+      \resumeItem{\textbf{Architected scalable solutions} that handle thousands of daily transactions}
+      \resumeItem{\textbf{Introduced technical standards and practices} that reshaped how the team ships code}
+      \resumeItem{Mentor for engineers, \textbf{driving quality and autonomy across the team}}
+      \resumeItem{Built systems that are \textbf{resilient, observable, and ready for production pressure}}
+    \resumeItemListEnd{}
+
+  \resumeQuadHeading{Senior PHP Developer}{Jun 2021 -- Jul 2023}
+  {Telgani}{Remote -- Riyadh, Saudi Arabia}
+  	\vspace{1pt}
+    \begin{quote}
+      \footnotesize\itshape
+      Key contributor to the core backend of a multi-component platform used across web and mobile.
+    \end{quote}
+	\resumeItemListStart{}
+	  \resumeItem{\textbf{Stabilized critical flows} (rental, return, extension) used by thousands of users daily}
+	  \resumeItem{Spearheaded improvements in \textbf{monitoring, logging, and system visibility}}
+	  \resumeItem{Developed multiple features from scratch and \textbf{optimized legacy codebases}}
+	  \resumeItem{Recognized by both the team and leadership for \textbf{technical insight and initiative}}
+	  \resumeItem{\textbf{Set new team habits} around testing, reviews, and deployment}
+	\resumeItemListEnd{}
+
+	\resumeQuadHeading{PHP Developer}{Feb 2021 -- May 2021}
+	{PROEXE}{Warsaw, Poland}
+	\vspace{1pt}
+	\begin{quote}
+	  \footnotesize\itshape
+	  Software house experience that sharpened my backend focus and cloud knowledge.
+	\end{quote}
+	\resumeItemListStart{}
+	  \resumeItem{\textbf{Worked with top-tier engineers} on high-quality backend systems}
+	  \resumeItem{Gained hands-on experience with \textbf{cloud infrastructure (AWS, GCP)}}
+	  \resumeItem{Shifted fully into logic and systems architecture — \textbf{no distractions, just backend}}
+	  \resumeItem{Delivered production features for real users under tight deadlines}
+	  \resumeItem{This is where \textbf{I turned skill into discipline}}
+	\resumeItemListEnd{}
+
+	\resumeQuadHeading{Junior Fullstack Developer}{Feb 2020 -- Dec 2020}
+	{MoveCloser}{Warsaw, Poland}
+	\vspace{1pt}
+	\begin{quote}
+	  \footnotesize\itshape
+	  The place where I first worked on real-world applications and found my direction as a developer.
+	\end{quote}
+	\resumeItemListStart{}
+	  \resumeItem{Learned \textbf{Laravel and modern PHP} in a fast-paced team}
+	  \resumeItem{Built more than static sites — \textbf{delivered actual business applications}}
+	  \resumeItem{\textbf{Worked with developers way ahead of me}, absorbing best practices daily}
+	  \resumeItem{This role \textbf{ignited my ambition to go deeper} into backend engineering}
+	\resumeItemListEnd{}
+\resumeHeadingListEnd{}
+%---------------------------------------------
+
+
+%----------------OTHERS----------------------
+% You can add your acheivements, accolades, certifications etc. here.
+
+\section{Achievements}
+  \resumeItemListStart{}
+    \resumeItem{\textbf{Student}: \href{https://www.coursera.org/account/accomplishments/certificate/M4QV3Z82SR8M}{\uline{Google Cloud Fundamentals – Coursera}}}
+    \resumeItem{\textbf{Student}: \href{https://www.coursera.org/account/accomplishments/certificate/KHLBK5GF5ZRF}{\uline{AWS Cloud Technical Essentials – Coursera}}}
+    \resumeItem{\textbf{Student}: \href{https://www.coursera.org/account/accomplishments/specialization/certificate/XVGMLTGAHR2C}{\uline{Programming with Google Go – Coursera}}}
+    \resumeItem{\textbf{Student}: Temporal.io Training – TalentLMS}
+    \resumeItem{\textbf{Author}: \href{https://strefakursow.pl/kursy/programowanie/kurs_laravel_od_podstaw_-_programowanie_aplikacji_w_php.html}{\uline{Laravel od podstaw – programowanie aplikacji w PHP, StrefaKursów.pl}}}
+    \resumeItem{\textbf{Contributor}: \href{https://github.com/laravel/framework/pulls?q=is\%3Apr+author\%3Aplumthedev}{\uline{Laravel Framework (open source)}}}
+  \resumeItemListEnd{}
+%--------------------------------------------
+
+\vfill
+\scriptsize
+I agree to the processing of personal data provided in this document for realising the recruitment process pursuant to the Personal Data Protection Act of 10 May 2018 (Journal of Laws 2018, item 1000)
+and in agreement with Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 on the protection of natural persons with regard to the processing of personal data and
+on the free movement of such data, and repealing Directive 95/46/EC (General Data Protection Regulation).
+
+\end{document}
