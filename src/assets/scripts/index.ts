@@ -28,4 +28,47 @@
             typed = '';
         }, 3000);
     });
+
+    function loadGTM() {
+        const id = 'GTM-KH64L7ZR';
+        const gtmScript = document.createElement('script');
+        gtmScript.src = `https://www.googletagmanager.com/gtm.js?id=${id}`;
+        gtmScript.async = true;
+        document.head.appendChild(gtmScript);
+
+        const noscript = document.createElement('noscript');
+        noscript.innerHTML = `<iframe src="https://www.googletagmanager.com/ns.html?id=${id}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`;
+        document.body.appendChild(noscript);
+    }
+
+    function cookies() {
+        const banner = document.getElementById('cookies-banner')!;
+        const accepted = localStorage.getItem('cookies') || '0';
+
+        const hideBanner = () => {
+            banner.style.opacity = '0';
+            setTimeout(() => banner.remove(), 1000);
+        }
+
+        if (accepted === '1') {
+            loadGTM();
+            hideBanner();
+            return;
+        }
+
+        banner.style.opacity = '1';
+
+        document.getElementById('accept-cookies')!.addEventListener('click', () => {
+            localStorage.setItem('cookies', '1');
+            loadGTM();
+            hideBanner();
+        });
+
+        document.getElementById('reject-cookies')!.addEventListener('click', () => {
+            localStorage.setItem('cookies', '0');
+            hideBanner();
+        });
+    }
+
+    cookies();
 })()
