@@ -67,6 +67,41 @@ body {
     animation-delay: 3s;
 }
 
+.cookies-banner {
+    opacity: 0;
+    position: fixed;
+    z-index: 9999;
+    bottom: 2rem;
+    left: calc(50% - 40vw);
+    background: #FEFAEC;
+    padding: 1rem 2rem;
+    color: #2E294E;
+    width: 80vw;
+    text-align: center;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: all linear 0.5s;
+}
+
+.cookies-banner button {
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
+    text-transform: uppercase;
+    border: 2px solid #8562c1;
+    font-weight: 400;
+    cursor: pointer;
+    background: #FEFAEC;
+    color: #8562c1;
+}
+
+.cookies-banner button:hover {
+    background: #8562c1;
+    color: #FEFAEC;
+}
+
+
 @keyframes rocket-launching {
     0% { transform: translateY(0) rotate(0deg); }
     5% { transform: translate(3px, -3px) rotate(-6deg); }
@@ -100,5 +135,12 @@ body {
         font-size: 1rem;
         font-weight: 400;
         margin: 0 0.5rem 1rem;
+    }
+
+    .cookies-banner {
+        bottom: 0;
+        left: 0;
+        width: 100vw;
+        border-radius: 0;
     }
 }
