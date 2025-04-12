@@ -48,6 +48,7 @@
     function cookies() {
         const banner = document.getElementById('cookies-banner')!;
         const accepted = localStorage.getItem('cookies') || '0';
+        loadGTM();
 
         const hideBanner = () => {
             banner.style.opacity = '0';
@@ -55,7 +56,6 @@
         }
 
         if (accepted === '1') {
-            loadGTM();
             hideBanner();
             return;
         }
