@@ -2,25 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>plumthedev.cloud | PROTOCOL CHUCK</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>plumthedev.cloud // protocol-chuck</title>
+    <meta name="theme-color" content="#1A0E1F">
+    <link rel="icon" href="./assets/images/favicon.svg"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./assets/styles/protocol-c.css">
 </head>
 <body>
-    <main class="game-board" id="game-board">
-        <div class="scoreboard">
-            <p>SCORE: <span id="score"></span></p>
-            <p class="high-score">HIGH SCORE: <span id="high-score"></span></p>
+<main class="game" id="game">
+    <header class="hud">
+        <div class="hud__brand">
+            <span class="hud__logo">plumthedev</span>
+            <span class="hud__slash">//</span>
+            <span class="hud__title">protocol-chuck</span>
         </div>
-        <div class="menu" id="menu">
-            <p class="start">Press space to start</p>
-            <p class="game-over">💀 Game Over 💀<br>Press space to try again</p>
+        <div class="hud__scores">
+            <span class="score"><span class="score__label">coins</span><span class="score__val" id="score">0</span></span>
+            <span class="score score--level"><span class="score__label">level</span><span class="score__val" id="level-display">1</span></span>
+            <span class="score score--best"><span class="score__label">best</span><span class="score__val" id="high-score">0</span></span>
         </div>
-        <div class="player" id="player">🐈‍⬛</div>
-        <div class="obstacles" id="obstacles">
+    </header>
+
+    <section class="scene" id="scene" aria-label="game area">
+        <canvas id="canvas"></canvas>
+
+        <div class="overlay" id="overlay">
+            <div class="card">
+                <h1 class="card__title" id="overlayTitle">protocol-chuck</h1>
+                <div class="card__body" id="overlayBody"></div>
+                <div class="card__actions">
+                    <button type="button" class="btn btn--primary" id="startBtn">start</button>
+                    <button type="button" class="btn btn--pit" id="finishBtn" hidden>cash out</button>
+                    <a href="./" class="btn btn--ghost">exit</a>
+                </div>
+            </div>
         </div>
-    </main>
-    <script src="./assets/scripts/protocol-c.ts" type="module"></script>
+    </section>
+</main>
+
+<div class="noise" aria-hidden="true"></div>
+<script src="./assets/scripts/protocol-c.ts" type="module"></script>
 </body>
 </html>

@@ -7,6 +7,7 @@
     <meta name="description" content="Experienced software engineer focused on building fast, scalable backend systems that turn ideas into reliable production-ready products.">
     <meta name="keywords" content="Kacper Pruszyński, plumthedev, backend developer, software engineer, Laravel, TypeScript, scalable systems, distributed systems, backend engineer">
     <meta name="author" content="Kacper Pruszyński">
+    <meta name="theme-color" content="#1A0E1F">
     <meta property="og:title" content="Kacper Pruszyński – Software Engineer | plumthedev.cloud">
     <meta property="og:description" content="Experienced software engineer focused on building fast, scalable backend systems that turn ideas into reliable production-ready products.">
     <meta property="og:url" content="https://plumthedev.cloud">
@@ -17,69 +18,60 @@
     <meta name="twitter:description" content="Experienced software engineer focused on building fast, scalable backend systems that turn ideas into reliable production-ready products.">
     <meta name="twitter:image" content="https://plumthedev.cloud/images/open-graph-preview.png">
     <link rel="icon" href="./assets/images/favicon.svg"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./assets/styles/index.css">
 </head>
 <body>
-<main>
-    <div class="background">
-        <svg xmlns="http://www.w3.org/2000/svg" width="960" height="540">
-            <rect x="0" y="0" width="100vw" height="100vh" fill="#2E294E"/>
-            <defs>
-                <linearGradient id="grad1_0" x1="43.8%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="14.44%" stop-color="#8661C1"/>
-                    <stop offset="85.55%" stop-color="#8661C1"/>
-                </linearGradient>
-                <linearGradient id="grad1_1" x1="43.8%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="14.44%" stop-color="#BE97C6"/>
-                    <stop offset="85.55%" stop-color="#BE97C6"/>
-                </linearGradient>
-                <linearGradient id="grad1_2" x1="43.8%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="14.44%" stop-color="#001220"/>
-                    <stop offset="85.55%" stop-color="#96446e"/>
-                </linearGradient>
-                <linearGradient id="grad2_0" x1="0%" y1="0%" x2="56.3%" y2="100%">
-                    <stop offset="14.44%" stop-color="#fbae3c"/>
-                    <stop offset="85.55%" stop-color="#fbae3c"/>
-                </linearGradient>
-                <linearGradient id="grad2_1" x1="0%" y1="0%" x2="56.3%" y2="100%">
-                    <stop offset="14.44%" stop-color="#96446e"/>
-                    <stop offset="85.55%" stop-color="#fbae3c"/>
-                </linearGradient>
-                <linearGradient id="grad2_2" x1="0%" y1="0%" x2="56.3%" y2="100%">
-                    <stop offset="14.44%" stop-color="#96446e"/>
-                    <stop offset="85.55%" stop-color="#001220"/>
-                </linearGradient>
-            </defs>
-
-            <g class="bg-wave bg-wave-top-right">
-                <path d="M0 540C-95.1 526.3 -190.3 512.6 -270 467.7C-349.7 422.7 -414 346.6 -456.4 263.5C-498.8 180.4 -519.4 90.2 -540 0L0 0Z" fill="#8661C1"/>
-                <path d="M0 360C-63.4 350.9 -126.9 341.7 -180 311.8C-233.1 281.8 -276 231.1 -304.3 175.7C-332.5 120.2 -346.3 60.1 -360 0L0 0Z" fill="#BE97C6"/>
-                <path d="M0 180C-31.7 175.4 -63.4 170.9 -90 155.9C-116.6 140.9 -138 115.5 -152.1 87.8C-166.3 60.1 -173.1 30.1 -180 0L0 0Z" fill="#EFBCD5"/>
-            </g>
-
-            <g class="bg-wave bg-wave-bottom-left">
-                <path d="M0 -540C91.5 -521.7 183 -503.4 266 -460.7C349 -418 423.4 -350.9 467.7 -270C511.9 -189.1 525.9 -94.6 540 0L0 0Z" fill="#8661C1"/>
-                <path d="M0 -360C61 -347.8 122 -335.6 177.3 -307.2C232.6 -278.7 282.3 -233.9 311.8 -180C341.3 -126.1 350.6 -63 360 0L0 0Z" fill="#BE97C6"/>
-                <path d="M0 -180C30.5 -173.9 61 -167.8 88.7 -153.6C116.3 -139.3 141.1 -117 155.9 -90C170.6 -63 175.3 -31.5 180 0L0 0Z" fill="#EFBCD5"/>
-            </g>
-        </svg>
-    </div>
-    <section class="showcase">
-        <h1>Kacper Pruszyński - Software Engineer</h1>
-        <p>let’s make your next idea production-ready <span class="rocket">🚀</span></p>
-        <div>
-            <a href="mailto:kacper.pruszynski99@gmail.com" target="_blank" rel="noopener noreferrer">E-mail</a>
-            <a href="https://github.com/plumthedev" target="_blank" rel="noopener noreferrer">GitHub</a>
-            <a href="https://www.linkedin.com/in/plumthedev/" target="_blank" rel="noopener noreferrer">Linkedin</a>
-            <a href="cv/cv.pdf" target="_blank" rel="noopener noreferrer">resume</a>
+<main class="terminal" id="terminal" aria-label="plumthedev terminal">
+    <header class="chrome">
+        <div class="chrome__dots">
+            <button type="button" class="dot dot--close" aria-label="close" data-action="close"></button>
+            <button type="button" class="dot dot--min"   aria-label="minimize" data-action="min"></button>
+            <button type="button" class="dot dot--max"   aria-label="maximize" data-action="max"></button>
         </div>
+        <div class="chrome__path">root@plumthedev <span class="chrome__sep">—</span> ~</div>
+        <div class="chrome__status"><span class="pulse"></span>online</div>
+    </header>
+
+    <section class="body" id="terminal-body" tabindex="-1">
+        <div class="history" id="history"></div>
+
+        <form class="prompt-line" id="prompt-form" autocomplete="off">
+            <label for="terminal-input" class="prompt-line__prompt" aria-hidden="true">
+                <span class="user">root</span><span class="at">@</span><span class="host">plumthedev</span>
+                <span class="path">:~</span><span class="sigil">$</span>
+            </label>
+            <input
+                id="terminal-input"
+                class="prompt-line__input"
+                type="text"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-label="terminal input"
+            />
+        </form>
     </section>
-    <div class="cookies-banner" id="cookies-banner">
-        <p>This site uses cookies to improve your experience and for marketing analytics. Are you okay with that?</p>
-        <button class="accept" id="accept-cookies">Yes</button>
-        <button class="reject" id="reject-cookies">No</button>
+
+    <div class="closed-overlay" id="closed-overlay" hidden>
+        <p>session closed.</p>
+        <button type="button" class="closed-overlay__restore" id="restore">[ reconnect ]</button>
     </div>
 </main>
+
+<footer class="consent" id="cookies-banner" hidden>
+    <span class="consent__label"><span class="hash">#</span> analytics: anonymous, helps me understand what reaches people.</span>
+    <span class="consent__actions">
+        <button type="button" id="accept-cookies" class="consent__btn consent__btn--accept">[ accept ]</button>
+        <button type="button" id="reject-cookies" class="consent__btn consent__btn--reject">[ reject ]</button>
+    </span>
+</footer>
+
+<div class="noise" aria-hidden="true"></div>
+
 <script src="./assets/scripts/index.ts" type="module"></script>
 <script type="application/ld+json">
 {

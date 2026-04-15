@@ -1,0 +1,150 @@
+\documentclass[9pt,a4paper]{article}
+
+% =====================
+% Layout & Fonts
+% =====================
+\usepackage[margin=1.3cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[none]{hyphenat}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+% =====================
+% Lists
+% =====================
+\setlist[itemize]{
+  noitemsep,
+  topsep=2pt,
+  parsep=0pt,
+  partopsep=0pt,
+  leftmargin=*
+}
+
+% =====================
+% CV helpers
+% =====================
+\newcommand{\cvsection}[1]{%
+  \vspace{8pt}%
+  {\bfseries #1}\par
+  \vspace{4pt}%
+}
+
+\newcommand{\cvhr}{%
+  \par\vspace*{8pt}%
+  \hrule height 0.3pt%
+  \vspace*{0pt}%
+}
+
+\newcommand{\cvrole}[2]{%
+  \textbf{#1} \hfill \textit{#2}\par
+}
+
+\newcommand{\cvsubtitle}[1]{%
+  \textit{#1}\par
+}
+
+% =====================
+% Document
+% =====================
+\begin{document}
+\pagestyle{empty}
+
+% =====================
+% Header
+% =====================
+{\Large \textbf{Kacper Pruszyński}}\par
+\textit{Backend Engineer}\par
+\vspace*{4pt}
+
+Warsaw, Poland \textbar\
+\href{mailto:kacper.pruszynski99@gmail.com}{kacper.pruszynski99@gmail.com} \textbar\
+\href{https://www.linkedin.com/in/plumthedev}{linkedin.com/in/plumthedev} \textbar\
+\href{https://github.com/plumthedev}{github.com/plumthedev}
+
+\cvhr
+
+% =====================
+% Profile
+% =====================
+\cvsection{PROFILE}
+Backend Engineer with 8 years of commercial experience and 5+ years working on real-world production systems.
+Focused on distributed systems, event-driven architectures and scalable backend design.
+Pragmatic in approach, prefers evolutionary changes over rewrites, takes ownership of systems and understands architectural trade-offs
+and actively develops skills in service- and platform-oriented systems.
+
+% =====================
+% Experience
+% =====================
+\cvsection{EXPERIENCE}
+
+\cvrole{Telgani — Car Sharing Marketplace}{Jun 2021 -- Present}
+\cvsubtitle{Backend Engineer}
+Scale: \textasciitilde30 RPS, \textasciitilde100 users/min, \textasciitilde5 services
+\begin{itemize}
+  \item Worked on a production marketplace platform covering reservations, pricing and payments.
+  \item Helped simplify a monolithic system built with CQRS/Event Sourcing by introducing a modular hexagonal architecture.
+  \item Reduced feature implementation complexity (from \textasciitilde10 classes to \textasciitilde3), improving delivery speed and maintainability.
+  \item Preserved CQRS/Event Sourcing for the core reservation flow where stronger consistency was required.
+  \item Acted as a technical reference for a 5-person team, supporting design discussions and code reviews.
+\end{itemize}
+\vspace*{4pt}
+
+
+\textbf{Service Architecture Evolution (Telgani)}\par
+\begin{itemize}
+  \item Evolved the core business flow towards a service-oriented architecture.
+  \item Worked on an API Gateway and SDK-based communication layer connecting PHP (Laravel) and Node.js (NestJS) services.
+  \item Designed SDKs providing consistent service contracts and integration patterns.
+  \item Built event-driven communication using RabbitMQ and later AWS SQS/SNS, maintaining pub/sub semantics.
+  \item Implemented user authorization and contributed to product catalog, notification, order and payment services.
+\end{itemize}
+\vspace*{4pt}
+
+\cvrole{The Onion Project — E-Commerce Deal Detector}{Jan 2025 -- Present}
+\cvsubtitle{Backend Engineer (Side Project)}
+\begin{itemize}
+  \item Designed a high-throughput backend system for tracking e-commerce price changes at scale.
+  \item Built a message-driven pipeline capable of processing \textbf{500k+ events in under 10 seconds}.
+  \item Selected ClickHouse for analytical storage after evaluating Elasticsearch-based alternatives.
+  \item Introduced lightweight observability (Netdata) to improve reliability with minimal overhead.
+  \item Designed an ML-assisted product categorization flow using transformer embeddings and centroid-based classification.
+\end{itemize}
+
+% =====================
+% Skills
+% =====================
+\cvsection{TECHNICAL SKILLS}
+\textbf{Languages:} PHP, TypeScript, Node.js\par
+\textbf{Architecture:} Distributed Systems, Event-Driven Architecture, DDD, Hexagonal Architecture\par
+\textbf{Data \& Messaging:} ClickHouse, Redis, RabbitMQ, AWS SQS/SNS, OpenSearch, MySQL\par
+\textbf{Cloud \& Infrastructure:} AWS (EC2, ECS, ALB, CloudFront, S3, RDS, VPC, IAM, Cognito), Docker\par
+\textbf{Observability:} ELK Stack, SigNoz, CloudWatch, Netdata
+
+% =====================
+% Training & Contributions
+% =====================
+\cvsection{PROFESSIONAL TRAINING \& CONTRIBUTIONS}
+\begin{itemize}
+  \item \textbf{Author:} \textit{Laravel from Scratch: Building Production-Ready PHP Applications} — StrefaKursów.pl
+  \item \textbf{Open Source Contributor:} Laravel Framework
+  \item \textbf{Professional Training:} Temporal.io (Workflows, Error Handling, Distributed Systems)
+  \item \textbf{Professional Training:} Google Cloud Fundamentals, AWS Cloud Technical Essentials
+\end{itemize}
+
+% =====================
+% GDPR
+% =====================
+\vfill
+\scriptsize
+I agree to the processing of personal data provided in this document for realising the recruitment process pursuant to the Personal Data Protection Act of 10 May 2018 (Journal of Laws 2018, item 1000)
+and in agreement with Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 on the protection of natural persons with regard to the processing of personal data and
+on the free movement of such data, and repealing Directive 95/46/EC (General Data Protection Regulation).
+
+\end{document}
