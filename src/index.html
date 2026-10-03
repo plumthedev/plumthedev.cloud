@@ -3,74 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kacper Pruszyński – Software Engineer | plumthedev.cloud</title>
-    <meta name="description" content="Experienced software engineer focused on building fast, scalable backend systems that turn ideas into reliable production-ready products.">
-    <meta name="keywords" content="Kacper Pruszyński, plumthedev, backend developer, software engineer, Laravel, TypeScript, scalable systems, distributed systems, backend engineer">
+    <title>Kacper Pruszyński – software engineer | plumthedev.cloud</title>
+    <meta name="description" content="Kacper Pruszyński — software engineer based in Warsaw. Backend, system design, small experiments.">
     <meta name="author" content="Kacper Pruszyński">
-    <meta name="theme-color" content="#1A0E1F">
-    <meta property="og:title" content="Kacper Pruszyński – Software Engineer | plumthedev.cloud">
-    <meta property="og:description" content="Experienced software engineer focused on building fast, scalable backend systems that turn ideas into reliable production-ready products.">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#F4F1E8" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#121110" media="(prefers-color-scheme: dark)">
+    <meta property="og:title" content="Kacper Pruszyński – software engineer | plumthedev.cloud">
+    <meta property="og:description" content="Kacper Pruszyński — software engineer based in Warsaw. Backend, system design, small experiments.">
     <meta property="og:url" content="https://plumthedev.cloud">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://plumthedev.cloud/images/open-graph-preview.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Kacper Pruszyński – Software Engineer | plumthedev.cloud">
-    <meta name="twitter:description" content="Experienced software engineer focused on building fast, scalable backend systems that turn ideas into reliable production-ready products.">
+    <meta name="twitter:title" content="Kacper Pruszyński – software engineer | plumthedev.cloud">
+    <meta name="twitter:description" content="Kacper Pruszyński — software engineer based in Warsaw. Backend, system design, small experiments.">
     <meta name="twitter:image" content="https://plumthedev.cloud/images/open-graph-preview.png">
     <link rel="icon" href="./assets/images/favicon.svg"/>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./assets/styles/index.css">
+    <script>try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch {}</script>
 </head>
 <body>
-<main class="terminal" id="terminal" aria-label="plumthedev terminal">
-    <header class="chrome">
-        <div class="chrome__dots">
-            <button type="button" class="dot dot--close" aria-label="close" data-action="close"></button>
-            <button type="button" class="dot dot--min"   aria-label="minimize" data-action="min"></button>
-            <button type="button" class="dot dot--max"   aria-label="maximize" data-action="max"></button>
-        </div>
-        <div class="chrome__path">root@plumthedev <span class="chrome__sep">—</span> ~</div>
-        <div class="chrome__status"><span class="pulse"></span>online</div>
+<div class="page">
+    <header>
+        <p class="theme">
+            <button type="button" data-theme="light">light</button>
+            <span class="sep">/</span>
+            <button type="button" data-theme="dark">dark</button>
+        </p>
+        <h1>Kacper Pruszyński</h1>
     </header>
 
-    <section class="body" id="terminal-body" tabindex="-1">
-        <div class="history" id="history"></div>
+    <main>
+        <div class="bio">
+            <p>Hi, I'm Kacper — a software engineer based in Warsaw.</p>
+            <p>I work mostly on the backend, where things are invisible when they're done right. I like system design, clear boundaries, and code that's easy to read a year later. Most of my time goes into figuring out how pieces should talk to each other, and then making sure they do.</p>
+            <p>Currently I'm a software engineer at Telgani, KSA — designing services, shaping architecture, reviewing code, and helping the team ship things that stay boring in production.</p>
+            <p>Outside of work I build small experiments, run a homelab, and occasionally contribute to open source. Some of it ends up useful. Most of it is just the joy of trying to build things.</p>
+        </div>
 
-        <form class="prompt-line" id="prompt-form" autocomplete="off">
-            <label for="terminal-input" class="prompt-line__prompt" aria-hidden="true">
-                <span class="user">root</span><span class="at">@</span><span class="host">plumthedev</span>
-                <span class="path">:~</span><span class="sigil">$</span>
-            </label>
-            <input
-                id="terminal-input"
-                class="prompt-line__input"
-                type="text"
-                autocomplete="off"
-                autocorrect="off"
-                autocapitalize="off"
-                spellcheck="false"
-                aria-label="terminal input"
-            />
-        </form>
-    </section>
+        <table class="links">
+            <tr><th>cv</th><td><a href="cv/cv.pdf" target="_blank" rel="noopener">cv.pdf</a></td></tr>
+            <tr><th>github</th><td><a href="https://github.com/plumthedev">github.com/plumthedev</a></td></tr>
+            <tr><th>linkedin</th><td><a href="https://www.linkedin.com/in/plumthedev/">linkedin.com/in/plumthedev</a></td></tr>
+            <tr><th>e-mail</th><td><a href="mailto:kacper.pruszynski99@gmail.com">kacper.pruszynski99@gmail.com</a></td></tr>
+        </table>
+    </main>
 
-    <div class="closed-overlay" id="closed-overlay" hidden>
-        <p>session closed.</p>
-        <button type="button" class="closed-overlay__restore" id="restore">[ reconnect ]</button>
-    </div>
-</main>
-
-<footer class="consent" id="cookies-banner" hidden>
-    <span class="consent__label"><span class="hash">#</span> analytics: anonymous, helps me understand what reaches people.</span>
-    <span class="consent__actions">
-        <button type="button" id="accept-cookies" class="consent__btn consent__btn--accept">[ accept ]</button>
-        <button type="button" id="reject-cookies" class="consent__btn consent__btn--reject">[ reject ]</button>
-    </span>
-</footer>
-
-<div class="noise" aria-hidden="true"></div>
+    <footer>
+        <p class="label">tech stack</p>
+        <canvas class="led" id="led" role="img" aria-label=""></canvas>
+        <p>
+            last updated <span class="num" id="build-date"></span>
+            <span class="sep">·</span> © plumthedev
+            <span class="sep">·</span> <span id="consent-status"></span>
+        </p>
+        <p class="consent" id="consent" hidden>
+            <span>This site uses Google Analytics to see who stops by.</span>
+            <span>
+                <button type="button" id="consent-accept">accept</button>
+                <span class="sep">·</span>
+                <button type="button" id="consent-reject">reject</button>
+            </span>
+        </p>
+    </footer>
+</div>
 
 <script src="./assets/scripts/index.ts" type="module"></script>
 <script type="application/ld+json">

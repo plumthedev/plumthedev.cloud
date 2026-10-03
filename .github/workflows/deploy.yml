@@ -28,6 +28,13 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+      - name: Compile CV
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: cv.tex
+          working_directory: src/assets/cv
+      - name: Publish CV
+        run: mv src/assets/cv/cv.pdf src/public/cv/cv.pdf
       - name: Install dependencies
         run: npm ci
       - name: Build

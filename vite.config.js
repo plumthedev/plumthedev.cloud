@@ -5,6 +5,9 @@ import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 
 export default defineConfig({
     root: 'src',
+    define: {
+        __BUILD_DATE__: JSON.stringify(new Date().toISOString().slice(0, 10)),
+    },
     plugins: [
         ViteMinifyPlugin({}),
         ViteImageOptimizer(),

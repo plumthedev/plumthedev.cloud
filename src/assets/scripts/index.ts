@@ -1,415 +1,268 @@
-(() => {
-    const GTM_ID = 'GTM-KH64L7ZR';
-    const STORAGE_KEY = 'cookies';
-    const HIST_KEY = 'shell.history';
+/// <reference types="vite/client" />
 
-    /* ─────────────────────────────────────────────────
-       analytics — loads right away unless user rejected.
-       reject persists the choice and reloads, so GTM is
-       gone from the current session too.
-       ───────────────────────────────────────────────── */
-    function loadGTM() {
-        if (document.getElementById('gtm-loader')) return;
-        const s = document.createElement('script');
-        s.id = 'gtm-loader';
-        s.async = true;
-        s.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`;
-        document.head.appendChild(s);
+declare const __BUILD_DATE__: string;
 
-        const ns = document.createElement('noscript');
-        const iframe = document.createElement('iframe');
-        iframe.src = `https://www.googletagmanager.com/ns.html?id=${GTM_ID}`;
-        iframe.width = '0';
-        iframe.height = '0';
-        iframe.style.cssText = 'display:none;visibility:hidden';
-        ns.appendChild(iframe);
-        document.body.appendChild(ns);
+function store(key: string, value?: string): string | null {
+    try {
+        if (value !== undefined) localStorage.setItem(key, value);
+        return localStorage.getItem(key);
+    } catch { return null; }
+}
+
+/* ── LED board ───────────────────────────────────────────── */
+
+// 5×7 font, ' ' (0x20) to '_' (0x5F). 5 column bytes per glyph, bit 0 = top row.
+const GLYPHS = [
+    '0000000000', '00005F0000', '0007000700', '147F147F14', '242A7F2A12', '2313086462', '3649552250', '0005030000', //   ! " # $ % & '
+    '001C224100', '0041221C00', '082A1C2A08', '08083E0808', '0050300000', '0808080808', '0060600000', '2010080402', // ( ) * + , - . /
+    '3E5149453E', '00427F4000', '4261514946', '2141454B31', '1814127F10', '2745454539', '3C4A494930', '0171090503', // 0 - 7
+    '3649494936', '064949291E', '0036360000', '0056360000', '0814224100', '1414141414', '0041221408', '0201510906', // 8 9 : ; < = > ?
+    '324979413E', '7E1111117E', '7F49494936', '3E41414122', '7F4141221C', '7F49494941', '7F09090101', '3E41415132', // @ A - G
+    '7F0808087F', '00417F4100', '2040413F01', '7F08142241', '7F40404040', '7F0204027F', '7F0408107F', '3E4141413E', // H - O
+    '7F09090906', '3E4151215E', '7F09192946', '4649494931', '01017F0101', '3F4040403F', '1F2040201F', '7F2018207F', // P - W
+    '6314081463', '0304780403', '6151494543', '00007F4141', '0204081020', '41417F0000', '0402010204', '4040404040', // X Y Z [ \ ] ^ _
+];
+
+function bitmap(text: string): number[] {
+    const cols: number[] = [];
+    for (const ch of text.toUpperCase()) {
+        const glyph = GLYPHS[ch.charCodeAt(0) - 32] ?? GLYPHS[0];
+        for (let c = 0; c < 10; c += 2) cols.push(parseInt(glyph.slice(c, c + 2), 16));
+        cols.push(0);
+    }
+    return cols;
+}
+
+// One screen = one item. Short items enter, rest and leave with a simple effect; long ones scroll across.
+const STACK = [
+    'PHP', 'Laravel', 'TypeScript', 'System Design', 'MySQL', 'Redis', 'OpenSearch', 'ClickHouse',
+    'Temporal', 'Linux', 'Docker', 'Amazon Web Services', 'Agentic Coding',
+];
+
+interface Screen { cols: number[]; chars: number; words: number; wordOf: number[] }
+// Where a lit dot ends up: [dx, dy, brightness]. p goes 0 → 1 while entering; leaving plays it backwards.
+type Effect = (p: number, s: Screen, i: number, r: number) => [number, number, number];
+
+function screen(label: string): Screen {
+    const wordOf: number[] = [];
+    let w = 0;
+    for (const ch of label) {
+        for (let c = 0; c < 6; c++) wordOf.push(w);
+        if (ch === ' ') w++;
+    }
+    return { cols: bitmap(label).slice(0, -1), chars: label.length, words: w + 1, wordOf };
+}
+
+const noise = (a: number, b: number) => {
+    const n = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453;
+    return n - Math.floor(n);
+};
+const ease = (p: number) => 1 - (1 - p) ** 3;
+const away = (s: Screen) => s.cols.length + 24;
+
+const EFFECTS: Record<string, Effect> = {
+    fade:     (p) => [0, 0, ease(p)],
+    left:     (p, s) => [-(1 - ease(p)) * away(s), 0, 1],
+    right:    (p, s) => [(1 - ease(p)) * away(s), 0, 1],
+    drop:     (p) => [0, -(1 - ease(p)) * 9, 1],
+    rise:     (p) => [0, (1 - ease(p)) * 9, 1],
+    type:     (p, s, i) => [0, 0, Math.floor(i / 6) < p * s.chars ? 1 : 0],
+    words:    (p, s, i) => [0, 0, s.wordOf[i] < p * s.words ? 1 : 0],
+    wipe:     (p, s, i) => [0, 0, i < ease(p) * s.cols.length ? 1 : 0],
+    curtain:  (p, s, i) => [0, 0, Math.abs(i - s.cols.length / 2) < ease(p) * s.cols.length / 2 ? 1 : 0],
+    dissolve: (p, _s, i, r) => [0, 0, noise(i, r) < p ? 1 : 0],
+};
+const NAMES = Object.keys(EFFECTS);
+
+function startLed(canvas: HTMLCanvasElement, items: string[]) {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    canvas.setAttribute('aria-label', items.join(', '));
+
+    const ROWS = 9, TOP = 1, LEVELS = 4, SCROLL_MS = 35;
+    const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const list = items.map(screen).sort(() => Math.random() - 0.5);
+
+    let pitch = 6, width = 0, pad = 0;
+    let index = 0, stage: 'in' | 'hold' | 'out' | 'gap' | 'scroll' = 'gap', since = 0, last = 0;
+    let fxIn = 'fade', fxOut = 'fade', pulse = false;
+    const buffer: number[] = [];
+
+    const pick = (not: string) => {
+        if (calm) return 'fade';
+        let name = not;
+        while (name === not) name = NAMES[Math.floor(Math.random() * NAMES.length)];
+        return name;
+    };
+    const fits = (s: Screen) => s.cols.length <= width - 4;
+    const duration = (s: Screen) => ({
+        in: 700, hold: 2000, out: 500, gap: 350,
+        scroll: (width + s.cols.length) * (calm ? SCROLL_MS * 2 : SCROLL_MS),
+    })[stage];
+
+    function resize() {
+        const cssW = canvas.clientWidth, dpr = devicePixelRatio || 1;
+        pitch = cssW < 480 ? 4 : 6;
+        width = Math.floor(cssW / pitch);
+        pad = (cssW - width * pitch) / 2;
+        canvas.style.height = ROWS * pitch + 'px';
+        canvas.width = cssW * dpr;
+        canvas.height = ROWS * pitch * dpr;
+        ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    function setupConsent() {
-        const banner = document.getElementById('cookies-banner');
-        const accept = document.getElementById('accept-cookies');
-        const reject = document.getElementById('reject-cookies');
-        if (!banner || !accept || !reject) return;
-
-        const choice = localStorage.getItem(STORAGE_KEY);
-        if (choice !== '0') loadGTM();
-
-        if (choice === '1' || choice === '0') {
-            banner.hidden = true;
-            return;
-        }
-
-        banner.hidden = false;
-        setTimeout(() => banner.setAttribute('data-visible', 'true'), 800);
-
-        const dismiss = () => {
-            banner.removeAttribute('data-visible');
-            setTimeout(() => (banner.hidden = true), 400);
-        };
-
-        accept.addEventListener('click', () => {
-            localStorage.setItem(STORAGE_KEY, '1');
-            dismiss();
-        });
-
-        reject.addEventListener('click', () => {
-            localStorage.setItem(STORAGE_KEY, '0');
-            dismiss();
-            setTimeout(() => location.reload(), 450);
-        });
-    }
-
-    /* ─────────────────────────────────────────────────
-       DOM helpers — build nodes, never parse strings as HTML
-       ───────────────────────────────────────────────── */
-    function el(tag: string, cls?: string, text?: string): HTMLElement {
-        const n = document.createElement(tag);
-        if (cls) n.className = cls;
-        if (text !== undefined) n.textContent = text;
-        return n;
-    }
-    function frag(...kids: (Node | string)[]): DocumentFragment {
-        const f = document.createDocumentFragment();
-        for (const k of kids) f.appendChild(typeof k === 'string' ? document.createTextNode(k) : k);
-        return f;
-    }
-    function span(text: string, cls?: string) { return el('span', cls, text); }
-    function anchor(text: string, href: string, newTab = true): HTMLAnchorElement {
-        const a = document.createElement('a');
-        a.href = href;
-        a.textContent = text;
-        if (newTab) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
-        return a;
-    }
-
-    /* ─────────────────────────────────────────────────
-       shell
-       ───────────────────────────────────────────────── */
-    type CommandFn = (args: string[], shell: Shell) => void;
-    interface Command {
-        name: string;
-        summary: string;
-        hidden?: boolean;
-        run: CommandFn;
-    }
-
-    class Shell {
-        historyEl: HTMLElement;
-        bodyEl: HTMLElement;
-        input: HTMLInputElement;
-        commands: Map<string, Command> = new Map();
-        aliases: Map<string, string> = new Map();
-        cmdHistory: string[] = [];
-        historyIdx = -1;
-        commandCount = 0;
-        chuckUsed = false;
-        hintShown = false;
-
-        constructor(history: HTMLElement, body: HTMLElement, input: HTMLInputElement) {
-            this.historyEl = history;
-            this.bodyEl = body;
-            this.input = input;
-            try { this.cmdHistory = JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); }
-            catch { this.cmdHistory = []; }
-            this.historyIdx = this.cmdHistory.length;
-        }
-
-        register(cmd: Command, ...aliases: string[]) {
-            this.commands.set(cmd.name, cmd);
-            aliases.forEach(a => this.aliases.set(a, cmd.name));
-        }
-        resolve(name: string): Command | undefined {
-            return this.commands.get(name) || this.commands.get(this.aliases.get(name) || '');
-        }
-
-        /* ─── rendering ─── */
-        writeLine(content: Node | string, cls = 'line--out') {
-            const p = el('p', 'line ' + cls);
-            p.appendChild(typeof content === 'string' ? document.createTextNode(content) : content);
-            this.historyEl.appendChild(p);
-            this.scroll();
-        }
-        writeText(text: string, cls = 'line--out') {
-            this.writeLine(document.createTextNode(text), cls);
-        }
-        spacer() {
-            const d = el('div', 'spacer');
-            this.historyEl.appendChild(d);
-        }
-        echo(raw: string) {
-            const p = el('p', 'line line--echo');
-            const prompt = el('span', 'echo-prompt');
-            prompt.appendChild(el('span', 's', '$'));
-            const cmd = el('span', 'echo-cmd', raw);
-            p.append(prompt, document.createTextNode(' '), cmd);
-            this.historyEl.appendChild(p);
-        }
-        scroll() {
-            this.bodyEl.scrollTop = this.bodyEl.scrollHeight;
-            this.historyEl.scrollTop = this.historyEl.scrollHeight;
-        }
-        clear() {
-            while (this.historyEl.firstChild) this.historyEl.removeChild(this.historyEl.firstChild);
-            this.intro();
-        }
-
-        /* ─── bio rendered on boot ─── */
-        intro() {
-            const name = el('p', 'line line--out');
-            name.appendChild(span('kacper pruszyński', 'k'));
-            this.historyEl.appendChild(name);
-
-            const meta = el('p', 'line line--out');
-            meta.append(span('software engineer', 'd'), span(' · ', 'd'), span('backend', 'd'), span(' · ', 'd'), span('warsaw', 'd'));
-            this.historyEl.appendChild(meta);
-
-            this.spacer();
-
-            const cv = el('p', 'line line--out');
-            cv.append(span('→ ', 'd'), anchor('resume', 'cv/cv.pdf'));
-            this.historyEl.appendChild(cv);
-
-            const gh = el('p', 'line line--out');
-            gh.append(span('→ ', 'd'), anchor('github.com/plumthedev', 'https://github.com/plumthedev'));
-            this.historyEl.appendChild(gh);
-
-            const li = el('p', 'line line--out');
-            li.append(span('→ ', 'd'), anchor('linkedin.com/in/plumthedev', 'https://www.linkedin.com/in/plumthedev/'));
-            this.historyEl.appendChild(li);
-
-            this.spacer();
-
-            this.writeText("type 'help' for commands.", 'line--hint');
-        }
-
-        /* ─── execution ─── */
-        submit(raw: string) {
-            const trimmed = raw.trim();
-            if (!trimmed) { this.echo(''); return; }
-
-            this.echo(trimmed);
-            this.pushHistory(trimmed);
-
-            const [name, ...args] = trimmed.split(/\s+/);
-            const cmd = this.resolve(name.toLowerCase());
-            if (!cmd) {
-                this.writeLine(
-                    frag(span('command not found: ', 'd'), span(name), ' — try ', span('help', 'k'), '.'),
-                    'line--error'
-                );
-            } else {
-                try { cmd.run(args, this); }
-                catch (e) { this.writeText('error: ' + String(e), 'line--error'); }
-            }
-
-            this.commandCount += 1;
-            if (name.toLowerCase() === 'chuck') this.chuckUsed = true;
-            this.maybeHint();
-        }
-
-        pushHistory(cmd: string) {
-            if (this.cmdHistory[this.cmdHistory.length - 1] === cmd) return;
-            this.cmdHistory.push(cmd);
-            this.cmdHistory = this.cmdHistory.slice(-50);
-            this.historyIdx = this.cmdHistory.length;
-            try { localStorage.setItem(HIST_KEY, JSON.stringify(this.cmdHistory)); } catch {}
-        }
-
-        maybeHint() {
-            if (this.hintShown || this.chuckUsed) return;
-            if (this.commandCount >= 8) {
-                this.hintShown = true;
-                this.spacer();
-                this.writeText('// there\u2019s more.', 'line--hint');
-            }
-        }
-
-        /* ─── arrow-key history nav ─── */
-        stepHistory(delta: number) {
-            if (!this.cmdHistory.length) return;
-            this.historyIdx = Math.max(0, Math.min(this.cmdHistory.length, this.historyIdx + delta));
-            this.input.value = this.cmdHistory[this.historyIdx] ?? '';
-            requestAnimationFrame(() => {
-                this.input.setSelectionRange(this.input.value.length, this.input.value.length);
-            });
-        }
-
-        /* ─── tab-complete ─── */
-        complete() {
-            const v = this.input.value;
-            if (!v) return;
-            const parts = v.split(/\s+/);
-            if (parts.length !== 1) return;
-            const prefix = parts[0].toLowerCase();
-            const visible = [...this.commands.values()].filter(c => !c.hidden).map(c => c.name);
-            const matches = visible.filter(n => n.startsWith(prefix));
-            if (matches.length === 1) {
-                this.input.value = matches[0] + ' ';
-            } else if (matches.length > 1) {
-                const line = el('span');
-                matches.forEach((m, i) => {
-                    if (i > 0) line.appendChild(document.createTextNode('  '));
-                    line.appendChild(span(m, 'k'));
-                });
-                this.writeLine(line);
-            }
+    function advance(t: number) {
+        if (t - since < duration(list[index])) return;
+        since = t;
+        if (stage === 'in') { stage = 'hold'; pulse = !calm && Math.random() < 0.3; }
+        else if (stage === 'hold') { stage = 'out'; fxOut = pick(fxIn); }
+        else if (stage === 'out' || stage === 'scroll') stage = 'gap';
+        else {
+            index = (index + 1) % list.length;
+            stage = fits(list[index]) ? 'in' : 'scroll';
+            fxIn = pick(fxOut);
         }
     }
 
-    function openUrl(url: string, newTab = true) {
-        if (newTab) window.open(url, '_blank', 'noopener,noreferrer');
-        else location.href = url;
-    }
+    function render(t: number) {
+        buffer.length = width * ROWS;
+        buffer.fill(0);
+        if (stage === 'gap') return;
 
-    function registerCommands(shell: Shell) {
-        shell.register({
-            name: 'help',
-            summary: 'list commands',
-            run: (_a, s) => {
-                for (const c of s.commands.values()) {
-                    if (c.hidden) continue;
-                    const row = el('span');
-                    row.append(span(c.name.padEnd(8, ' '), 'k'), span(c.summary, 'd'));
-                    s.writeLine(row);
-                }
-            }
-        }, '?');
-
-        shell.register({
-            name: 'links',
-            summary: 'contact & profiles',
-            run: (_a, s) => {
-                const row = (label: string, display: string, href: string, mailto = false) => {
-                    const line = el('span');
-                    line.append(
-                        span('→ ', 'd'),
-                        span(label.padEnd(10, ' '), 'k'),
-                        anchor(display, mailto ? 'mailto:' + display : href)
-                    );
-                    return line;
-                };
-                s.writeLine(row('email', 'kacper.pruszynski99@gmail.com', '', true));
-                s.writeLine(row('github', 'github.com/plumthedev', 'https://github.com/plumthedev'));
-                s.writeLine(row('linkedin', 'linkedin.com/in/plumthedev', 'https://www.linkedin.com/in/plumthedev/'));
-            }
-        });
-
-        shell.register({
-            name: 'cv',
-            summary: 'open resume',
-            run: (_a, s) => { s.writeText('→ opening resume…', 'line--hint'); openUrl('cv/cv.pdf'); }
-        }, 'resume');
-
-        shell.register({
-            name: 'clear',
-            summary: 'clear screen',
-            run: (_a, s) => s.clear()
-        }, 'cls');
-
-        shell.register({
-            name: 'exit',
-            summary: 'close session',
-            hidden: true,
-            run: (_a, s) => {
-                s.writeText('closing session…', 'line--hint');
-                setTimeout(() => document.getElementById('terminal')?.dispatchEvent(new CustomEvent('terminal:close')), 300);
-            }
-        }, 'quit', 'logout');
-
-        shell.register({
-            name: 'chuck',
-            summary: 'some doors should stay closed',
-            run: (_a, s) => {
-                s.writeText('initiating protocol-chuck…', 'line--hint');
-                setTimeout(() => (location.href = 'protocol-c.html'), 450);
+        const s = list[index], ms = t - since, p = Math.min(1, ms / duration(s));
+        const sx = stage === 'scroll' ? width - Math.floor(ms / (calm ? SCROLL_MS * 2 : SCROLL_MS)) : Math.floor((width - s.cols.length) / 2);
+        s.cols.forEach((col, i) => {
+            for (let r = 0; r < 7; r++) {
+                if (!((col >> r) & 1)) continue;
+                let [dx, dy, a] = [0, 0, 1];
+                if (stage === 'in') [dx, dy, a] = EFFECTS[fxIn](p, s, i, r);
+                if (stage === 'out') [dx, dy, a] = EFFECTS[fxOut](1 - p, s, i, r);
+                if (stage === 'hold' && pulse) a = 0.75 + 0.25 * Math.cos(ms / 300);
+                const x = sx + i + Math.round(dx), y = TOP + r + Math.round(dy);
+                if (x >= 0 && x < width && y >= 0 && y < ROWS) buffer[y * width + x] = a;
             }
         });
     }
 
-    function setupTerminal() {
-        const root = document.getElementById('terminal');
-        const bodyEl = document.getElementById('terminal-body');
-        const historyEl = document.getElementById('history');
-        const form = document.getElementById('prompt-form') as HTMLFormElement | null;
-        const input = document.getElementById('terminal-input') as HTMLInputElement | null;
-        const closedOverlay = document.getElementById('closed-overlay');
-        const restoreBtn = document.getElementById('restore');
-        if (!root || !bodyEl || !historyEl || !form || !input) return;
-        const rootEl = root;
-        const inputEl = input;
-
-        const shell = new Shell(historyEl, bodyEl, inputEl);
-        registerCommands(shell);
-        shell.intro();
-
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const v = input.value;
-            input.value = '';
-            shell.submit(v);
-        });
-
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp')        { e.preventDefault(); shell.stepHistory(-1); }
-            else if (e.key === 'ArrowDown') { e.preventDefault(); shell.stepHistory(1); }
-            else if (e.key === 'Tab')       { e.preventDefault(); shell.complete(); }
-            else if (e.key === 'l' && e.ctrlKey) { e.preventDefault(); shell.clear(); }
-            else if (e.key === 'c' && e.ctrlKey) {
-                e.preventDefault();
-                shell.echo(input.value + '^C');
-                input.value = '';
-            }
-        });
-
-        bodyEl.addEventListener('click', (e) => {
-            const sel = window.getSelection();
-            if (sel && sel.toString().length > 0) return;
-            if ((e.target as HTMLElement).closest('a, button')) return;
-            input.focus();
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (root.classList.contains('is-minimized')) return;
-            if (closedOverlay && !closedOverlay.hidden) return;
-            if (document.activeElement === input) return;
-            if (e.ctrlKey || e.metaKey || e.altKey) return;
-            const target = e.target as HTMLElement | null;
-            if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
-            if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Enter') {
-                input.focus();
-            }
-        });
-
-        input.focus();
-
-        root.querySelectorAll<HTMLElement>('.dot').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const action = btn.dataset.action;
-                if (action === 'close') closeTerminal();
-                else if (action === 'min') root.classList.toggle('is-minimized');
-                else if (action === 'max') root.classList.toggle('is-maxed');
-                if (!root.classList.contains('is-minimized')) input.focus();
-            });
-        });
-
-        root.addEventListener('terminal:close', () => closeTerminal());
-        restoreBtn?.addEventListener('click', reopenTerminal);
-
-        function closeTerminal() {
-            if (!closedOverlay) return;
-            closedOverlay.hidden = false;
-            rootEl.classList.remove('is-minimized');
+    function draw() {
+        // Lit dots take the text colour, unlit ones the muted colour — so the board follows the theme.
+        const css = getComputedStyle(document.documentElement);
+        const levels = Array.from({ length: LEVELS + 1 }, () => new Path2D());
+        for (let y = 0; y < ROWS; y++) for (let x = 0; x < width; x++) {
+            const b = Math.round(buffer[y * width + x] * LEVELS);
+            const cx = pad + x * pitch + pitch / 2, cy = y * pitch + pitch / 2, r = pitch * (b ? 0.36 : 0.3);
+            levels[b].moveTo(cx + r, cy);
+            levels[b].arc(cx, cy, r, 0, Math.PI * 2);
         }
-        function reopenTerminal() {
-            if (!closedOverlay) return;
-            closedOverlay.hidden = true;
-            shell.clear();
-            inputEl.focus();
+
+        ctx!.clearRect(0, 0, canvas.width, canvas.height);
+        ctx!.globalAlpha = 0.25;
+        ctx!.fillStyle = css.getPropertyValue('--muted');
+        ctx!.fill(levels[0]);
+        ctx!.fillStyle = css.getPropertyValue('--fg');
+        for (let b = 1; b <= LEVELS; b++) {
+            ctx!.globalAlpha = b / LEVELS;
+            ctx!.fill(levels[b]);
         }
     }
 
-    /* boot */
-    setupConsent();
-    setupTerminal();
-})();
+    function tick(t: number) {
+        if (width && t - last >= 33) {
+            last = t;
+            advance(t);
+            render(t);
+            draw();
+        }
+        requestAnimationFrame(tick);
+    }
+
+    new ResizeObserver(resize).observe(canvas);
+    requestAnimationFrame(tick);
+}
+
+/* ── analytics (opt-out: loads unless rejected) ─────────── */
+
+const GTM_ID = 'GTM-KH64L7ZR';
+
+function loadGTM() {
+    if (document.getElementById('gtm-loader')) return;
+    const s = document.createElement('script');
+    s.id = 'gtm-loader';
+    s.async = true;
+    s.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`;
+    document.head.append(s);
+}
+
+function setupConsent() {
+    const bar = document.getElementById('consent');
+    const status = document.getElementById('consent-status');
+    if (!bar || !status) return;
+
+    const render = () => {
+        const choice = store('cookies');
+        bar.hidden = choice !== null;
+        const change = document.createElement('button');
+        change.type = 'button';
+        change.textContent = 'change';
+        change.addEventListener('click', () => (bar.hidden = false));
+        status.replaceChildren(`analytics: ${choice === '0' ? 'off' : 'on'} (`, change, ')');
+    };
+
+    if (store('cookies') !== '0') loadGTM();
+    render();
+
+    document.getElementById('consent-accept')?.addEventListener('click', () => {
+        store('cookies', '1');
+        loadGTM();
+        render();
+    });
+    document.getElementById('consent-reject')?.addEventListener('click', () => {
+        store('cookies', '0');
+        // GTM can't be unloaded; a reload drops it.
+        if (document.getElementById('gtm-loader')) location.reload();
+        else render();
+    });
+}
+
+/* ── theme: follows the system until the visitor picks one ─ */
+
+function setupTheme() {
+    const buttons = document.querySelectorAll<HTMLButtonElement>('.theme button');
+    const dark = matchMedia('(prefers-color-scheme: dark)');
+    const render = () => {
+        const current = document.documentElement.dataset.theme || (dark.matches ? 'dark' : 'light');
+        buttons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.theme === current)));
+    };
+    buttons.forEach(b => b.addEventListener('click', () => {
+        document.documentElement.dataset.theme = b.dataset.theme;
+        store('theme', b.dataset.theme);
+        render();
+    }));
+    dark.addEventListener('change', render);
+    render();
+}
+
+/* ── easter egg: type "chuck" anywhere ───────────────────── */
+
+function setupChuck() {
+    let typed = '';
+    addEventListener('keydown', (e) => {
+        if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey) return;
+        typed = (typed + e.key.toLowerCase()).slice(-5);
+        if (typed === 'chuck') location.href = 'protocol-c.html';
+    });
+}
+
+/* ── boot ────────────────────────────────────────────────── */
+
+const led = document.getElementById('led');
+if (led instanceof HTMLCanvasElement) startLed(led, STACK);
+
+const built = document.getElementById('build-date');
+if (built) built.textContent = __BUILD_DATE__;
+
+setupTheme();
+setupConsent();
+setupChuck();
+
+if (import.meta.env.PROD && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
