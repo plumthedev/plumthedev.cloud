@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 
 declare const __BUILD_DATE__: string;
+declare const __BUILD_COMMIT__: string;
 
 function store(key: string, value?: string): string | null {
     try {
@@ -259,7 +260,11 @@ const led = document.getElementById('led');
 if (led instanceof HTMLCanvasElement) startLed(led, STACK);
 
 const built = document.getElementById('build-date');
-if (built) built.textContent = __BUILD_DATE__;
+if (built instanceof HTMLAnchorElement) {
+    built.textContent = __BUILD_DATE__;
+    built.title = __BUILD_COMMIT__.slice(0, 7);
+    built.href = `https://github.com/plumthedev/plumthedev.cloud/commit/${__BUILD_COMMIT__}`;
+}
 
 setupTheme();
 setupConsent();
