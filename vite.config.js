@@ -25,7 +25,6 @@ export default defineConfig({
             },
             input: {
                 main: resolve(__dirname, 'src/index.html'),
-                protocol: resolve(__dirname, 'src/protocol-c.html'),
             },
         }
     },

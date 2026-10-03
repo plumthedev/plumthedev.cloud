@@ -40,7 +40,7 @@ const STACK = [
     'Temporal', 'Linux', 'Docker', 'Amazon Web Services', 'Agentic Coding',
 ];
 
-interface Screen { cols: number[]; chars: number; words: number; wordOf: number[] }
+interface Screen { cols: number[]; chars: number; words: number; wordOf: number[]; hot?: boolean }
 // Where a lit dot ends up: [dx, dy, brightness]. p goes 0 → 1 while entering; leaving plays it backwards.
 type Effect = (p: number, s: Screen, i: number, r: number) => [number, number, number];
 
@@ -75,9 +75,10 @@ const EFFECTS: Record<string, Effect> = {
 };
 const NAMES = Object.keys(EFFECTS);
 
-function startLed(canvas: HTMLCanvasElement, items: string[]) {
+// Returns say(): flashes and shows one extra message in the accent colour, then the board goes back to its list.
+function startLed(canvas: HTMLCanvasElement, items: string[], label: HTMLElement | null): (text: string) => void {
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) return () => {};
     canvas.setAttribute('aria-label', items.join(', '));
 
     const ROWS = 9, TOP = 1, LEVELS = 4, SCROLL_MS = 35;
@@ -85,7 +86,7 @@ function startLed(canvas: HTMLCanvasElement, items: string[]) {
     const list = items.map(screen).sort(() => Math.random() - 0.5);
 
     let pitch = 6, width = 0, pad = 0;
-    let index = 0, stage: 'in' | 'hold' | 'out' | 'gap' | 'scroll' = 'gap', since = 0, last = 0;
+    let index = 0, cur = list[0], once: Screen | null = null, stage: 'in' | 'hold' | 'out' | 'gap' | 'scroll' = 'gap', since = 0, last = 0;
     let fxIn = 'fade', fxOut = 'fade', pulse = false;
     const buffer: number[] = [];
 
@@ -113,14 +114,17 @@ function startLed(canvas: HTMLCanvasElement, items: string[]) {
     }
 
     function advance(t: number) {
-        if (t - since < duration(list[index])) return;
+        if (t - since < duration(cur)) return;
         since = t;
         if (stage === 'in') { stage = 'hold'; pulse = !calm && Math.random() < 0.3; }
         else if (stage === 'hold') { stage = 'out'; fxOut = pick(fxIn); }
         else if (stage === 'out' || stage === 'scroll') stage = 'gap';
         else {
-            index = (index + 1) % list.length;
-            stage = fits(list[index]) ? 'in' : 'scroll';
+            if (once) [cur, once] = [once, null];
+            else cur = list[index = (index + 1) % list.length];
+            stage = fits(cur) ? 'in' : 'scroll';
+            if (label) label.textContent = cur.hot ? 'chuck norris fact' : 'tech stack';
+            label?.classList.toggle('hot', !!cur.hot);
             fxIn = pick(fxOut);
         }
     }
@@ -130,7 +134,7 @@ function startLed(canvas: HTMLCanvasElement, items: string[]) {
         buffer.fill(0);
         if (stage === 'gap') return;
 
-        const s = list[index], ms = t - since, p = Math.min(1, ms / duration(s));
+        const s = cur, ms = t - since, p = Math.min(1, ms / duration(s));
         const sx = stage === 'scroll' ? width - Math.floor(ms / (calm ? SCROLL_MS * 2 : SCROLL_MS)) : Math.floor((width - s.cols.length) / 2);
         s.cols.forEach((col, i) => {
             for (let r = 0; r < 7; r++) {
@@ -143,10 +147,12 @@ function startLed(canvas: HTMLCanvasElement, items: string[]) {
                 if (x >= 0 && x < width && y >= 0 && y < ROWS) buffer[y * width + x] = a;
             }
         });
+        // the hit: the whole board lights up and fades into the message
+        if (s.hot && stage !== 'out' && stage !== 'hold' && ms < 400) for (let k = 0; k < buffer.length; k++) buffer[k] = Math.max(buffer[k], 1 - ms / 400);
     }
 
     function draw() {
-        // Lit dots take the text colour, unlit ones the muted colour — so the board follows the theme.
+        // Lit dots take the text colour, unlit ones the muted colour, read live from CSS.
         const css = getComputedStyle(document.documentElement);
         const levels = Array.from({ length: LEVELS + 1 }, () => new Path2D());
         for (let y = 0; y < ROWS; y++) for (let x = 0; x < width; x++) {
@@ -160,7 +166,7 @@ function startLed(canvas: HTMLCanvasElement, items: string[]) {
         ctx!.globalAlpha = 0.25;
         ctx!.fillStyle = css.getPropertyValue('--muted');
         ctx!.fill(levels[0]);
-        ctx!.fillStyle = css.getPropertyValue('--fg');
+        ctx!.fillStyle = css.getPropertyValue(cur.hot && stage !== 'gap' ? '--accent' : '--fg');
         for (let b = 1; b <= LEVELS; b++) {
             ctx!.globalAlpha = b / LEVELS;
             ctx!.fill(levels[b]);
@@ -179,6 +185,12 @@ function startLed(canvas: HTMLCanvasElement, items: string[]) {
 
     new ResizeObserver(resize).observe(canvas);
     requestAnimationFrame(tick);
+
+    return (text) => {
+        once = { ...screen(text), hot: true };
+        stage = 'gap';
+        since = 0;
+    };
 }
 
 /* ── analytics (opt-out: loads unless rejected) ─────────── */
@@ -225,39 +237,51 @@ function setupConsent() {
     });
 }
 
-/* ── theme: follows the system until the visitor picks one ─ */
-
-function setupTheme() {
-    const buttons = document.querySelectorAll<HTMLButtonElement>('.theme button');
-    const dark = matchMedia('(prefers-color-scheme: dark)');
-    const render = () => {
-        const current = document.documentElement.dataset.theme || (dark.matches ? 'dark' : 'light');
-        buttons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.theme === current)));
-    };
-    buttons.forEach(b => b.addEventListener('click', () => {
-        document.documentElement.dataset.theme = b.dataset.theme;
-        store('theme', b.dataset.theme);
-        render();
-    }));
-    dark.addEventListener('change', render);
-    render();
-}
-
 /* ── easter egg: type "chuck" anywhere ───────────────────── */
 
-function setupChuck() {
-    let typed = '';
+const FACTS = [
+    "Chuck Norris doesn't need a load balancer. Servers balance themselves.",
+    'Chuck Norris can divide by zero.',
+    'Chuck Norris writes to /dev/null and it remembers.',
+    "Chuck Norris's queries don't need indexes. The rows come to him.",
+    "Chuck Norris doesn't retry. It works the first time.",
+    'Chuck Norris deploys on Friday.',
+    "Chuck Norris's cache never misses.",
+    'Race conditions wait for Chuck Norris.',
+    'Chuck Norris gets exactly-once delivery.',
+    "Chuck Norris doesn't read logs. Logs report to him.",
+];
+
+// A roundhouse kick lands on the right edge; the shock runs down the page and settles like a spring.
+function roundhouse() {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const swing = [0, -14, 9, -5, 2.5, -1, 0];
+    const frames = swing.map((x, i) => ({
+        transform: `translateX(${x}px) rotate(${x / 12}deg)`,
+        offset: [0, 0.06, 0.24, 0.42, 0.6, 0.78, 1][i],
+        easing: i ? 'ease-in-out' : 'cubic-bezier(.2, 0, 0, 1)',
+    }));
+    document.querySelectorAll('h1, .bio p, .links tr, footer > *').forEach((el, i) =>
+        el.animate(frames, { duration: 900, delay: i * 35 }));
+}
+
+function setupChuck(say: (text: string) => void) {
+    console.log('%cwhat are you looking for?', 'font-weight: bold', '\ntry typing "chuck" anywhere on the website.');
+    const facts = FACTS.slice().sort(() => Math.random() - 0.5);
+    let typed = '', kicks = 0;
     addEventListener('keydown', (e) => {
         if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey) return;
         typed = (typed + e.key.toLowerCase()).slice(-5);
-        if (typed === 'chuck') location.href = 'protocol-c.html';
+        if (typed !== 'chuck') return;
+        roundhouse();
+        say(facts[kicks++ % facts.length]);
     });
 }
 
 /* ── boot ────────────────────────────────────────────────── */
 
 const led = document.getElementById('led');
-if (led instanceof HTMLCanvasElement) startLed(led, STACK);
+const say = led instanceof HTMLCanvasElement ? startLed(led, STACK, document.querySelector('footer .label')) : () => {};
 
 const built = document.getElementById('build-date');
 if (built instanceof HTMLAnchorElement) {
@@ -266,8 +290,7 @@ if (built instanceof HTMLAnchorElement) {
     built.href = `https://github.com/plumthedev/plumthedev.cloud/commit/${__BUILD_COMMIT__}`;
 }
 
-setupTheme();
 setupConsent();
-setupChuck();
+setupChuck(say);
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
