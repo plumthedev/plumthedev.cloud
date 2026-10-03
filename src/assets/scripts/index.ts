@@ -36,8 +36,8 @@ function bitmap(text: string): number[] {
 
 // One screen = one item. Short items enter, rest and leave with a simple effect; long ones scroll across.
 const STACK = [
-    'PHP', 'Laravel', 'TypeScript', 'System Design', 'MySQL', 'Redis', 'OpenSearch', 'ClickHouse',
-    'Temporal', 'Linux', 'Docker', 'Amazon Web Services', 'Agentic Coding',
+    'Backend Development', 'API Design', 'System Design', 'MySQL', 'Caching', 'Elasticsearch',
+    'Durable Workflows', 'Linux', 'Docker', 'Cloud Infrastructure', 'Homelab', 'Agentic Coding',
 ];
 
 interface Screen { cols: number[]; chars: number; words: number; wordOf: number[]; hot?: boolean }
@@ -193,7 +193,7 @@ function startLed(canvas: HTMLCanvasElement, items: string[], label: HTMLElement
     };
 }
 
-/* ── analytics (opt-out: loads unless rejected) ─────────── */
+/* ── analytics (opt-out: on unless switched off) ─────────── */
 
 const GTM_ID = 'GTM-KH64L7ZR';
 
@@ -206,35 +206,21 @@ function loadGTM() {
     document.head.append(s);
 }
 
-function setupConsent() {
-    const bar = document.getElementById('consent');
-    const status = document.getElementById('consent-status');
-    if (!bar || !status) return;
-
+function setupAnalytics() {
+    const buttons = document.querySelectorAll<HTMLButtonElement>('.analytics button');
     const render = () => {
-        const choice = store('cookies');
-        bar.hidden = choice !== null;
-        const change = document.createElement('button');
-        change.type = 'button';
-        change.textContent = 'change';
-        change.addEventListener('click', () => (bar.hidden = false));
-        status.replaceChildren(`analytics: ${choice === '0' ? 'off' : 'on'} (`, change, ')');
+        const on = store('cookies') !== '0';
+        buttons.forEach(b => b.setAttribute('aria-pressed', String((b.dataset.on === '1') === on)));
     };
-
+    buttons.forEach(b => b.addEventListener('click', () => {
+        store('cookies', b.dataset.on);
+        // GTM can't be unloaded; a reload drops it.
+        if (b.dataset.on === '0' && document.getElementById('gtm-loader')) return location.reload();
+        if (b.dataset.on === '1') loadGTM();
+        render();
+    }));
     if (store('cookies') !== '0') loadGTM();
     render();
-
-    document.getElementById('consent-accept')?.addEventListener('click', () => {
-        store('cookies', '1');
-        loadGTM();
-        render();
-    });
-    document.getElementById('consent-reject')?.addEventListener('click', () => {
-        store('cookies', '0');
-        // GTM can't be unloaded; a reload drops it.
-        if (document.getElementById('gtm-loader')) location.reload();
-        else render();
-    });
 }
 
 /* ── easter egg: type "chuck" anywhere ───────────────────── */
@@ -261,27 +247,47 @@ function roundhouse() {
         offset: [0, 0.06, 0.24, 0.42, 0.6, 0.78, 1][i],
         easing: i ? 'ease-in-out' : 'cubic-bezier(.2, 0, 0, 1)',
     }));
-    document.querySelectorAll('h1, .bio p, .links tr, footer > *').forEach((el, i) =>
+    document.querySelectorAll('h1, .bio p, .links tr, .stack > *, footer').forEach((el, i) =>
         el.animate(frames, { duration: 900, delay: i * 35 }));
 }
 
 function setupChuck(say: (text: string) => void) {
-    console.log('%cwhat are you looking for?', 'font-weight: bold', '\ntry typing "chuck" anywhere on the website.');
+    console.log('%cwhat are you looking for?', 'font-weight: bold', '\ntry typing "chuck" anywhere on the website, or shake your phone.');
     const facts = FACTS.slice().sort(() => Math.random() - 0.5);
-    let typed = '', kicks = 0;
+    let kicks = 0, typed = '';
+    const kick = () => {
+        roundhouse();
+        say(facts[kicks++ % facts.length]);
+    };
+
     addEventListener('keydown', (e) => {
         if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey) return;
         typed = (typed + e.key.toLowerCase()).slice(-5);
-        if (typed !== 'chuck') return;
-        roundhouse();
-        say(facts[kicks++ % facts.length]);
+        if (typed === 'chuck') kick();
+    });
+
+    // Shake: a handful of hard jolts within a short window, then a cooldown.
+    // ponytail: iOS only sends devicemotion after DeviceMotionEvent.requestPermission() from a tap, so there it stays silent.
+    let jolts = 0, lastJolt = 0, quietUntil = 0;
+    addEventListener('devicemotion', (e) => {
+        const a = e.accelerationIncludingGravity;
+        if (!a || a.x === null) return;
+        const force = Math.abs(Math.hypot(a.x, a.y ?? 0, a.z ?? 0) - 9.81);
+        const now = e.timeStamp;
+        if (force < 12 || now < quietUntil) return;
+        jolts = now - lastJolt < 500 ? jolts + 1 : 1;
+        lastJolt = now;
+        if (jolts < 6) return;
+        jolts = 0;
+        quietUntil = now + 2000;
+        kick();
     });
 }
 
 /* ── boot ────────────────────────────────────────────────── */
 
 const led = document.getElementById('led');
-const say = led instanceof HTMLCanvasElement ? startLed(led, STACK, document.querySelector('footer .label')) : () => {};
+const say = led instanceof HTMLCanvasElement ? startLed(led, STACK, document.querySelector('.stack .label')) : () => {};
 
 const built = document.getElementById('build-date');
 if (built instanceof HTMLAnchorElement) {
@@ -290,7 +296,7 @@ if (built instanceof HTMLAnchorElement) {
     built.href = `https://github.com/plumthedev/plumthedev.cloud/commit/${__BUILD_COMMIT__}`;
 }
 
-setupConsent();
+setupAnalytics();
 setupChuck(say);
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');

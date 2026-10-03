@@ -41,26 +41,22 @@
             <tr><th>linkedin</th><td><a href="https://www.linkedin.com/in/plumthedev/" target="_blank" rel="noopener noreferrer">linkedin.com/in/plumthedev</a></td></tr>
             <tr><th>e-mail</th><td><a href="mailto:kacper.pruszynski99@gmail.com" target="_blank" rel="noopener noreferrer">kacper.pruszynski99@gmail.com</a></td></tr>
         </table>
+
+        <section class="stack">
+            <p class="label">tech stack</p>
+            <canvas class="led" id="led" role="img" aria-label=""></canvas>
+        </section>
     </main>
 
     <footer>
-        <p class="label">tech stack</p>
-        <canvas class="led" id="led" role="img" aria-label=""></canvas>
-        <div class="meta">
-            <p>
-                last updated <a class="num" id="build-date" target="_blank" rel="noopener noreferrer"></a>
-                <span class="sep">·</span> © plumthedev - Kacper Pruszyński
-                <span class="sep">·</span> <span id="consent-status"></span>
-            </p>
-            <p class="consent" id="consent" hidden>
-                <span>This site uses Google Analytics to see who stops by.</span>
-                <span>
-                    <button type="button" id="consent-accept">accept</button>
-                    <span class="sep">·</span>
-                    <button type="button" id="consent-reject">reject</button>
-                </span>
-            </p>
-        </div>
+        <p class="row">
+            <span>last updated <a class="num" id="build-date" target="_blank" rel="noopener noreferrer"></a></span>
+            <span class="analytics" title="Google Analytics">
+                analytics
+                <button type="button" data-on="1">on</button><span class="sep">/</span><button type="button" data-on="0">off</button>
+            </span>
+        </p>
+        <p class="copy">© plumthedev - Kacper Pruszyński</p>
     </footer>
 </div>
 
@@ -78,8 +74,8 @@
   "worksFor": { "@type": "Organization", "name": "Telgani" },
   "address": { "@type": "PostalAddress", "addressLocality": "Warsaw", "addressCountry": "PL" },
   "knowsAbout": [
-    "PHP", "Laravel", "TypeScript", "System Design", "MySQL", "Redis", "OpenSearch",
-    "ClickHouse", "Temporal", "Linux", "Docker", "Amazon Web Services", "Agentic Coding"
+    "Backend Development", "API Design", "System Design", "MySQL", "Caching", "Elasticsearch",
+    "Durable Workflows", "Linux", "Docker", "Cloud Infrastructure", "Homelab", "Agentic Coding"
   ],
   "sameAs": [
     "https://github.com/plumthedev",
