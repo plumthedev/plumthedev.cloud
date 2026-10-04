@@ -3,7 +3,7 @@
     --bg: #121110;
     --fg: #E8E4DA;
     --muted: #7A766E;
-    --accent: #E8A33D;
+    --accent: #B57EDC;
 
     --font: Verdana, Tahoma, 'DejaVu Sans', sans-serif;
     --mono: ui-monospace, Menlo, Consolas, monospace;
@@ -130,6 +130,9 @@ footer a { color: var(--muted); }
     @page { margin: 16mm; }
     .page { max-width: none; min-height: 0; padding: 0; }
     a { text-decoration: none; }
+    /* on paper the header is just the top of the first page, not a sticky bar over the text */
+    header { position: static; padding-top: 0; }
+    header::after { content: none; }
     h2 { margin-top: 24px; break-after: avoid; }
     tr { break-inside: avoid; }
     .led, .links tr:first-child, footer { display: none; }

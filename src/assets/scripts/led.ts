@@ -22,7 +22,7 @@ function bitmap(text: string): number[] {
     return cols;
 }
 
-// The logo: dots lit at GLOW, with random sparks flashing to full brightness.
+// The logo: dots lit at GLOW, with random sparks flaring up in the accent colour.
 // say() scrolls one message through it in the accent colour, then the logo comes back.
 export function startLed(canvas: HTMLCanvasElement, text: string): (text: string) => void {
     const ctx = canvas.getContext('2d');
@@ -31,7 +31,7 @@ export function startLed(canvas: HTMLCanvasElement, text: string): (text: string
     const ROWS = 7, LEVELS = 20, SCROLL_MS = 35, GLOW = 0.6;
     const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const logo = bitmap(text).slice(0, -1), width = logo.length;
-    const buffer = new Array<number>(width * ROWS);
+    const buffer = new Array<number>(width * ROWS), heat = new Array<number>(width * ROWS);
     let once: number[] | null = null, since = 0, last = 0, pitch = 2, dpr = 1;
     // lit dots of the logo (buffer indexes) and the ones twinkling right now (index → start time)
     const lit = logo.flatMap((col, x) => [...Array(ROWS).keys()].filter(r => (col >> r) & 1).map(r => r * width + x));
@@ -54,6 +54,7 @@ export function startLed(canvas: HTMLCanvasElement, text: string): (text: string
 
     function render(t: number) {
         buffer.fill(0);
+        heat.fill(0);
         const ms = t - since;
         if (once && width - ms / SCROLL_MS + once.length < 0) once = null;
         const cols = once ?? logo;
@@ -64,13 +65,13 @@ export function startLed(canvas: HTMLCanvasElement, text: string): (text: string
             const a = once ? 1 : GLOW;
             for (let r = 0; r < ROWS; r++) if ((col >> r) & 1) buffer[r * width + x] = a;
         });
-        // sparks: random dots flash to full and fade out fast
+        // sparks: random dots flare up in the accent colour and fade out
         if (!once && !calm) {
-            if (Math.random() < 0.15) sparks.set(lit[Math.floor(Math.random() * lit.length)], t);
+            if (Math.random() < 0.25) sparks.set(lit[Math.floor(Math.random() * lit.length)], t);
             sparks.forEach((t0, k) => {
-                const age = (t - t0) / 450;
+                const age = (t - t0) / 600;
                 if (age >= 1) sparks.delete(k);
-                else buffer[k] = GLOW + (1 - GLOW) * (1 - age) ** 2;
+                else heat[k] = (1 - age) ** 2;
             });
         }
         // the hit: the whole board lights up and fades into the message
@@ -81,13 +82,18 @@ export function startLed(canvas: HTMLCanvasElement, text: string): (text: string
         // Lit dots take the text colour, unlit ones the muted colour, read live from CSS.
         const css = getComputedStyle(document.documentElement);
         const levels = Array.from({ length: LEVELS + 1 }, () => new Path2D());
+        const dot = (path: Path2D, x: number, y: number, r: number) => {
+            // tiny dots on a low-res screen: a sub-pixel circle blurs to half its brightness, so a crisp square stands in
+            // (a spark gets the whole cell)
+            const side = r > 0.4 ? pitch : pitch / 2;
+            if (pitch * dpr < 4) return path.rect(x * pitch, y * pitch, side, side);
+            const cx = x * pitch + pitch / 2, cy = y * pitch + pitch / 2;
+            path.moveTo(cx + r * pitch, cy);
+            path.arc(cx, cy, r * pitch, 0, Math.PI * 2);
+        };
         for (let y = 0; y < ROWS; y++) for (let x = 0; x < width; x++) {
             const b = Math.round(buffer[y * width + x] * LEVELS);
-            // tiny dots on a low-res screen: a sub-pixel circle blurs to half its brightness, so a crisp square stands in
-            if (pitch * dpr < 4) { levels[b].rect(x * pitch, y * pitch, pitch / 2, pitch / 2); continue; }
-            const cx = x * pitch + pitch / 2, cy = y * pitch + pitch / 2, r = pitch * (b ? 0.36 : 0.3);
-            levels[b].moveTo(cx + r, cy);
-            levels[b].arc(cx, cy, r, 0, Math.PI * 2);
+            dot(levels[b], x, y, b ? 0.36 : 0.3);
         }
 
         ctx!.clearRect(0, 0, canvas.width, canvas.height);
@@ -99,6 +105,17 @@ export function startLed(canvas: HTMLCanvasElement, text: string): (text: string
             ctx!.globalAlpha = b / LEVELS;
             ctx!.fill(levels[b]);
         }
+        // sparks on top, with a soft halo
+        ctx!.fillStyle = ctx!.shadowColor = css.getPropertyValue('--accent');
+        ctx!.shadowBlur = pitch * 3;
+        heat.forEach((h, k) => {
+            if (!h) return;
+            const spark = new Path2D();
+            dot(spark, k % width, Math.floor(k / width), 0.45);
+            ctx!.globalAlpha = h;
+            ctx!.fill(spark);
+        });
+        ctx!.shadowBlur = 0;
     }
 
     function tick(t: number) {
