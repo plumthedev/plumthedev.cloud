@@ -27,7 +27,6 @@ function roundhouse() {
 }
 
 export function setupChuck(say: (text: string) => void, logo: HTMLElement | null) {
-    console.log('%cwhat are you looking for?', 'font-weight: bold', '\ntry typing "chuck" anywhere on the website.');
     const facts = FACTS.slice().sort(() => Math.random() - 0.5);
     let kicks = 0, typed = '';
     const kick = () => {
