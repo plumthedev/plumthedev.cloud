@@ -12,7 +12,7 @@ Personal site of Kacper Pruszyński, backend engineer and team lead. One page th
 ## Page structure (`src/index.html`)
 
 - Sticky header: name, small LED logo "plumthedev" on the right (baseline aligned), italic grey motto under it.
-- Bio (2 paragraphs, the only justified text), then links: cv (print this page), github, linkedin, e-mail.
+- Bio (2 paragraphs), then links: cv (print this page), github, linkedin, e-mail.
 - Sections: **path** (jobs as a timeline), **how I work** (short traits), **stack** (concepts and tools), **off the clock** (hobbies).
 - Footer: last updated (build date, links to the commit), analytics on/off, copyright. Its tooltip hints the easter egg.
 - JSON-LD `Person` at the bottom. Keep `knowsAbout` in sync with the stack section.
