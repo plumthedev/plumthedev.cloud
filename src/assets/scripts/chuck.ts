@@ -42,19 +42,14 @@ export function setupChuck(say: (text: string) => void, logo: HTMLElement | null
 
     logo?.addEventListener('click', kick);
 
-    // Fast scrolling up and down: a few quick direction flips, each after a decent run, then a cooldown.
-    let lastY = scrollY, dir = 0, run = 0, flips: number[] = [], quietUntil = 0;
-    addEventListener('scroll', () => {
-        const y = scrollY, delta = y - lastY, d = Math.sign(delta), now = performance.now();
-        lastY = y;
-        if (!d) return;
-        if (d === dir) { run += Math.abs(delta); return; }
-        if (dir && run >= 80) flips = [...flips.filter(t => now - t < 1500), now];
-        dir = d;
-        run = Math.abs(delta);
-        if (flips.length < 3 || now < quietUntil) return;
-        flips = [];
-        quietUntil = now + 2000;
-        kick();
-    }, { passive: true });
+    // Holding the copyright line on a phone. Scrolling cancels the pointer, and with it the timer.
+    const copy = document.querySelector<HTMLElement>('.copy');
+    let hold = 0;
+    const release = () => clearTimeout(hold);
+    copy?.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'touch') hold = setTimeout(kick, 600);
+    });
+    copy?.addEventListener('pointerup', release);
+    copy?.addEventListener('pointercancel', release);
+    copy?.addEventListener('contextmenu', (e) => e.preventDefault());
 }

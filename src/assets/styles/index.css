@@ -122,7 +122,8 @@ footer a { color: var(--muted); }
 
 .row { display: flex; justify-content: space-between; gap: 4px 16px; }
 .analytics button[aria-pressed="true"] { color: var(--fg); text-decoration: none; cursor: default; }
-.copy { margin-top: 12px; text-align: center; }
+/* held down on a phone for the easter egg, so no text selection or callout menu */
+.copy { margin-top: 12px; text-align: center; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 
 /* ── print: the page is the cv ───────────── */
 @media print {
