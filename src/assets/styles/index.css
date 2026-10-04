@@ -24,7 +24,7 @@ body { margin: 0; }
 .page {
     max-width: 600px;
     margin: 0 auto;
-    padding: 24px 16px 32px;
+    padding: 0 16px 32px;
     /* footer sits at the bottom of the window when the content is shorter */
     min-height: 100svh;
     display: flex;
@@ -89,7 +89,21 @@ header {
     align-items: baseline;
     justify-content: space-between;
     gap: 8px 16px;
-    margin: 0 0 16px;
+    margin: 0 0 4px;
+    /* sticky, so the logo stays in view; the text scrolls under it and fades out below */
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 24px 0 12px;
+    background: var(--bg);
+}
+header::after {
+    content: '';
+    position: absolute;
+    inset: 100% 0 auto;
+    height: 12px;
+    background: linear-gradient(var(--bg), transparent);
+    pointer-events: none;
 }
 header h1 { margin: 0; }
 .motto { flex-basis: 100%; margin: 0; font-style: italic; color: var(--muted); }
