@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-    <!-- "P" in the site's 5×7 LED font: cream dots on the page background -->
-    <rect width="32" height="32" rx="4" fill="#121110"/>
-    <g fill="#7A766E" opacity=".25"><circle cx="12" cy="8" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="12" cy="20" r="1.3"/><circle cx="12" cy="24" r="1.3"/><circle cx="12" cy="28" r="1.3"/><circle cx="16" cy="8" r="1.3"/><circle cx="16" cy="12" r="1.3"/><circle cx="16" cy="20" r="1.3"/><circle cx="16" cy="24" r="1.3"/><circle cx="16" cy="28" r="1.3"/><circle cx="20" cy="8" r="1.3"/><circle cx="20" cy="12" r="1.3"/><circle cx="20" cy="20" r="1.3"/><circle cx="20" cy="24" r="1.3"/><circle cx="20" cy="28" r="1.3"/><circle cx="24" cy="4" r="1.3"/><circle cx="24" cy="16" r="1.3"/><circle cx="24" cy="20" r="1.3"/><circle cx="24" cy="24" r="1.3"/><circle cx="24" cy="28" r="1.3"/></g>
-    <g fill="#E8E4DA"><circle cx="8" cy="28" r="1.6"/><circle cx="8" cy="4" r="1.6"/><circle cx="8" cy="8" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="8" cy="16" r="1.6"/><circle cx="8" cy="20" r="1.6"/><circle cx="8" cy="24" r="1.6"/><circle cx="12" cy="4" r="1.6"/><circle cx="12" cy="16" r="1.6"/><circle cx="16" cy="4" r="1.6"/><circle cx="16" cy="16" r="1.6"/><circle cx="20" cy="4" r="1.6"/><circle cx="20" cy="16" r="1.6"/><circle cx="24" cy="8" r="1.6"/><circle cx="24" cy="12" r="1.6"/></g>
+    <!-- a plum: accent disc on the page background, with a cream glint -->
+    <rect width="32" height="32" rx="6" fill="#121110"/>
+    <circle cx="16" cy="16" r="10" fill="#B57EDC"/>
+    <circle cx="19.5" cy="12.5" r="2" fill="#E8E4DA"/>
 </svg>
