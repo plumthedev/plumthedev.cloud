@@ -5,7 +5,7 @@ Personal site of Kacper Pruszyński, backend engineer and team lead. One page th
 ## Look and feel
 
 - Raw, minimal, 2000s/2010s web. One 600px column, Verdana 13px, tables for label/value rows, plain underlined links.
-- Dark only. Colours are tokens on `:root` in `src/assets/styles/index.css`: `--bg #121110`, `--fg #E8E4DA`, `--muted #7A766E`, `--accent #B57EDC` (plum).
+- Dark only. Colours are tokens on `:root` in `src/assets/styles/index.css`: `--bg #121110`, `--fg #E8E4DA`, `--muted #817D75`, `--accent #B57EDC` (plum).
 - The accent is used sparingly: link and button hover, logo sparks, the Chuck message on the logo.
 - No hero, cards, gradients, icons or marketing sections. New things should look like they always belonged to this page.
 
