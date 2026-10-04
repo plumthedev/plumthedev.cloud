@@ -4,6 +4,22 @@ import { defineConfig } from 'vite'
 import { ViteMinifyPlugin } from 'vite-plugin-minify'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 
+// The CSS and JS are a few KB: inline them into the page so it is one request and nothing blocks the first render.
+const inlineAssets = {
+    name: 'inline-assets',
+    enforce: 'post',
+    generateBundle(_, bundle) {
+        const html = bundle['index.html'];
+        for (const [name, file] of Object.entries(bundle)) {
+            const tag = (el) => new RegExp(`<${el}[^>]*${name.replace(/\./g, '\\.')}[^>]*>${el === 'script' ? '</script>' : ''}`);
+            if (name.endsWith('.css')) html.source = html.source.replace(tag('link'), () => `<style>${file.source}</style>`);
+            else if (file.type === 'chunk') html.source = html.source.replace(tag('script'), () => `<script type="module">${file.code}</script>`);
+            else continue;
+            delete bundle[name];
+        }
+    },
+};
+
 export default defineConfig({
     root: 'src',
     define: {
@@ -13,6 +29,7 @@ export default defineConfig({
     plugins: [
         ViteMinifyPlugin({}),
         ViteImageOptimizer(),
+        inlineAssets,
     ],
     build: {
         minify: true,
