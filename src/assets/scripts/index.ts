@@ -34,121 +34,59 @@ function bitmap(text: string): number[] {
     return cols;
 }
 
-// One screen = one item. Short items enter, rest and leave with a simple effect; long ones scroll across.
-const STACK = [
-    'Backend Development', 'API Design', 'System Design', 'MySQL', 'Caching', 'Elasticsearch',
-    'Durable Workflows', 'Linux', 'Docker', 'Cloud Infrastructure', 'Homelab', 'Agentic Coding',
-];
-
-interface Screen { cols: number[]; chars: number; words: number; wordOf: number[]; hot?: boolean }
-// Where a lit dot ends up: [dx, dy, brightness]. p goes 0 → 1 while entering; leaving plays it backwards.
-type Effect = (p: number, s: Screen, i: number, r: number) => [number, number, number];
-
-function screen(label: string): Screen {
-    const wordOf: number[] = [];
-    let w = 0;
-    for (const ch of label) {
-        for (let c = 0; c < 6; c++) wordOf.push(w);
-        if (ch === ' ') w++;
-    }
-    return { cols: bitmap(label).slice(0, -1), chars: label.length, words: w + 1, wordOf };
-}
-
-const noise = (a: number, b: number) => {
-    const n = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453;
-    return n - Math.floor(n);
-};
-const ease = (p: number) => 1 - (1 - p) ** 3;
-const away = (s: Screen) => s.cols.length + 24;
-
-const EFFECTS: Record<string, Effect> = {
-    fade:     (p) => [0, 0, ease(p)],
-    left:     (p, s) => [-(1 - ease(p)) * away(s), 0, 1],
-    right:    (p, s) => [(1 - ease(p)) * away(s), 0, 1],
-    drop:     (p) => [0, -(1 - ease(p)) * 9, 1],
-    rise:     (p) => [0, (1 - ease(p)) * 9, 1],
-    type:     (p, s, i) => [0, 0, Math.floor(i / 6) < p * s.chars ? 1 : 0],
-    words:    (p, s, i) => [0, 0, s.wordOf[i] < p * s.words ? 1 : 0],
-    wipe:     (p, s, i) => [0, 0, i < ease(p) * s.cols.length ? 1 : 0],
-    curtain:  (p, s, i) => [0, 0, Math.abs(i - s.cols.length / 2) < ease(p) * s.cols.length / 2 ? 1 : 0],
-    dissolve: (p, _s, i, r) => [0, 0, noise(i, r) < p ? 1 : 0],
-};
-const NAMES = Object.keys(EFFECTS);
-
-// Returns say(): flashes and shows one extra message in the accent colour, then the board goes back to its list.
-function startLed(canvas: HTMLCanvasElement, items: string[], label: HTMLElement | null): (text: string) => void {
+// The logo: dots lit at GLOW, with random sparks flashing to full brightness.
+// say() scrolls one message through it in the accent colour, then the logo comes back.
+function startLed(canvas: HTMLCanvasElement, text: string): (text: string) => void {
     const ctx = canvas.getContext('2d');
     if (!ctx) return () => {};
-    canvas.setAttribute('aria-label', items.join(', '));
 
-    const ROWS = 9, TOP = 1, LEVELS = 4, SCROLL_MS = 35;
+    const ROWS = 7, LEVELS = 20, SCROLL_MS = 35, GLOW = 0.6;
     const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const list = items.map(screen).sort(() => Math.random() - 0.5);
+    const logo = bitmap(text).slice(0, -1), width = logo.length;
+    const buffer = new Array<number>(width * ROWS);
+    let once: number[] | null = null, since = 0, last = 0, pitch = 2, dpr = 1;
+    // lit dots of the logo (buffer indexes) and the ones twinkling right now (index → start time)
+    const lit = logo.flatMap((col, x) => [...Array(ROWS).keys()].filter(r => (col >> r) & 1).map(r => r * width + x));
+    const sparks = new Map<number, number>();
 
-    let pitch = 6, width = 0, pad = 0;
-    let index = 0, cur = list[0], once: Screen | null = null, stage: 'in' | 'hold' | 'out' | 'gap' | 'scroll' = 'gap', since = 0, last = 0;
-    let fxIn = 'fade', fxOut = 'fade', pulse = false;
-    const buffer: number[] = [];
-
-    const pick = (not: string) => {
-        if (calm) return 'fade';
-        let name = not;
-        while (name === not) name = NAMES[Math.floor(Math.random() * NAMES.length)];
-        return name;
-    };
-    const fits = (s: Screen) => s.cols.length <= width - 4;
-    const duration = (s: Screen) => ({
-        in: 700, hold: 2000, out: 500, gap: 350,
-        scroll: (width + s.cols.length) * (calm ? SCROLL_MS * 2 : SCROLL_MS),
-    })[stage];
-
-    function resize() {
-        const cssW = canvas.clientWidth, dpr = devicePixelRatio || 1;
-        pitch = cssW < 480 ? 4 : 6;
-        width = Math.floor(cssW / pitch);
-        pad = (cssW - width * pitch) / 2;
+    // CSS sets the width; the dots stretch to fill it and the height follows.
+    const resize = () => {
+        dpr = devicePixelRatio || 1;
+        pitch = canvas.clientWidth / width;
         canvas.style.height = ROWS * pitch + 'px';
-        canvas.width = cssW * dpr;
-        canvas.height = ROWS * pitch * dpr;
-        ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-
-    function advance(t: number) {
-        if (t - since < duration(cur)) return;
-        since = t;
-        if (stage === 'in') { stage = 'hold'; pulse = !calm && Math.random() < 0.3; }
-        else if (stage === 'hold') { stage = 'out'; fxOut = pick(fxIn); }
-        else if (stage === 'out' || stage === 'scroll') stage = 'gap';
-        else {
-            if (once) [cur, once] = [once, null];
-            else cur = list[index = (index + 1) % list.length];
-            stage = fits(cur) ? 'in' : 'scroll';
-            if (label) label.textContent = cur.hot ? 'chuck norris fact' : 'tech stack';
-            label?.classList.toggle('hot', !!cur.hot);
-            fxIn = pick(fxOut);
-        }
-    }
+        canvas.width = Math.round(canvas.clientWidth * dpr);
+        canvas.height = Math.round(ROWS * pitch * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        // resizing wipes the canvas; repaint now rather than on the next tick
+        render(performance.now());
+        draw();
+    };
+    resize();
+    new ResizeObserver(resize).observe(canvas);
 
     function render(t: number) {
-        buffer.length = width * ROWS;
         buffer.fill(0);
-        if (stage === 'gap') return;
-
-        const s = cur, ms = t - since, p = Math.min(1, ms / duration(s));
-        const sx = stage === 'scroll' ? width - Math.floor(ms / (calm ? SCROLL_MS * 2 : SCROLL_MS)) : Math.floor((width - s.cols.length) / 2);
-        s.cols.forEach((col, i) => {
-            for (let r = 0; r < 7; r++) {
-                if (!((col >> r) & 1)) continue;
-                let [dx, dy, a] = [0, 0, 1];
-                if (stage === 'in') [dx, dy, a] = EFFECTS[fxIn](p, s, i, r);
-                if (stage === 'out') [dx, dy, a] = EFFECTS[fxOut](1 - p, s, i, r);
-                if (stage === 'hold' && pulse) a = 0.75 + 0.25 * Math.cos(ms / 300);
-                const x = sx + i + Math.round(dx), y = TOP + r + Math.round(dy);
-                if (x >= 0 && x < width && y >= 0 && y < ROWS) buffer[y * width + x] = a;
-            }
+        const ms = t - since;
+        if (once && width - ms / SCROLL_MS + once.length < 0) once = null;
+        const cols = once ?? logo;
+        const sx = once ? width - Math.floor(ms / SCROLL_MS) : 0;
+        cols.forEach((col, i) => {
+            const x = sx + i;
+            if (x < 0 || x >= width) return;
+            const a = once ? 1 : GLOW;
+            for (let r = 0; r < ROWS; r++) if ((col >> r) & 1) buffer[r * width + x] = a;
         });
+        // sparks: random dots flash to full and fade out fast
+        if (!once && !calm) {
+            if (Math.random() < 0.15) sparks.set(lit[Math.floor(Math.random() * lit.length)], t);
+            sparks.forEach((t0, k) => {
+                const age = (t - t0) / 450;
+                if (age >= 1) sparks.delete(k);
+                else buffer[k] = GLOW + (1 - GLOW) * (1 - age) ** 2;
+            });
+        }
         // the hit: the whole board lights up and fades into the message
-        if (s.hot && stage !== 'out' && stage !== 'hold' && ms < 400) for (let k = 0; k < buffer.length; k++) buffer[k] = Math.max(buffer[k], 1 - ms / 400);
+        if (once && ms < 400) for (let k = 0; k < buffer.length; k++) buffer[k] = Math.max(buffer[k], 1 - ms / 400);
     }
 
     function draw() {
@@ -157,16 +95,18 @@ function startLed(canvas: HTMLCanvasElement, items: string[], label: HTMLElement
         const levels = Array.from({ length: LEVELS + 1 }, () => new Path2D());
         for (let y = 0; y < ROWS; y++) for (let x = 0; x < width; x++) {
             const b = Math.round(buffer[y * width + x] * LEVELS);
-            const cx = pad + x * pitch + pitch / 2, cy = y * pitch + pitch / 2, r = pitch * (b ? 0.36 : 0.3);
+            // tiny dots on a low-res screen: a sub-pixel circle blurs to half its brightness, so a crisp square stands in
+            if (pitch * dpr < 4) { levels[b].rect(x * pitch, y * pitch, pitch / 2, pitch / 2); continue; }
+            const cx = x * pitch + pitch / 2, cy = y * pitch + pitch / 2, r = pitch * (b ? 0.36 : 0.3);
             levels[b].moveTo(cx + r, cy);
             levels[b].arc(cx, cy, r, 0, Math.PI * 2);
         }
 
         ctx!.clearRect(0, 0, canvas.width, canvas.height);
-        ctx!.globalAlpha = 0.25;
+        ctx!.globalAlpha = 0.12;
         ctx!.fillStyle = css.getPropertyValue('--muted');
         ctx!.fill(levels[0]);
-        ctx!.fillStyle = css.getPropertyValue(cur.hot && stage !== 'gap' ? '--accent' : '--fg');
+        ctx!.fillStyle = css.getPropertyValue(once ? '--accent' : '--fg');
         for (let b = 1; b <= LEVELS; b++) {
             ctx!.globalAlpha = b / LEVELS;
             ctx!.fill(levels[b]);
@@ -174,22 +114,18 @@ function startLed(canvas: HTMLCanvasElement, items: string[], label: HTMLElement
     }
 
     function tick(t: number) {
-        if (width && t - last >= 33) {
+        if (t - last >= 33) {
             last = t;
-            advance(t);
             render(t);
             draw();
         }
         requestAnimationFrame(tick);
     }
-
-    new ResizeObserver(resize).observe(canvas);
     requestAnimationFrame(tick);
 
-    return (text) => {
-        once = { ...screen(text), hot: true };
-        stage = 'gap';
-        since = 0;
+    return (message) => {
+        once = bitmap(message);
+        since = performance.now();
     };
 }
 
@@ -247,7 +183,7 @@ function roundhouse() {
         offset: [0, 0.06, 0.24, 0.42, 0.6, 0.78, 1][i],
         easing: i ? 'ease-in-out' : 'cubic-bezier(.2, 0, 0, 1)',
     }));
-    document.querySelectorAll('h1, .bio p, .links tr, .stack > *, footer').forEach((el, i) =>
+    document.querySelectorAll('h1, canvas, .motto, h2, main p, tr, footer').forEach((el, i) =>
         el.animate(frames, { duration: 900, delay: i * 35 }));
 }
 
@@ -287,7 +223,7 @@ function setupChuck(say: (text: string) => void) {
 /* ── boot ────────────────────────────────────────────────── */
 
 const led = document.getElementById('led');
-const say = led instanceof HTMLCanvasElement ? startLed(led, STACK, document.querySelector('.stack .label')) : () => {};
+const say = led instanceof HTMLCanvasElement ? startLed(led, 'plumthedev') : () => {};
 
 const built = document.getElementById('build-date');
 if (built instanceof HTMLAnchorElement) {
@@ -295,6 +231,8 @@ if (built instanceof HTMLAnchorElement) {
     built.title = __BUILD_COMMIT__.slice(0, 7);
     built.href = `https://github.com/plumthedev/plumthedev.cloud/commit/${__BUILD_COMMIT__}`;
 }
+
+document.getElementById('print')?.addEventListener('click', () => print());
 
 setupAnalytics();
 setupChuck(say);

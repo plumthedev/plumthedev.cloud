@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kacper Pruszyński – software engineer | plumthedev.cloud</title>
-    <meta name="description" content="Kacper Pruszyński — software engineer based in Warsaw. Backend, system design, small experiments.">
+    <title>Kacper Pruszyński - backend engineer | plumthedev.cloud</title>
+    <meta name="description" content="Kacper Pruszyński, self-taught backend engineer and team lead from Warsaw. System design, problem solving and work at scale.">
     <meta name="author" content="Kacper Pruszyński">
     <meta name="color-scheme" content="dark">
     <meta name="theme-color" content="#121110">
-    <meta property="og:title" content="Kacper Pruszyński – software engineer | plumthedev.cloud">
-    <meta property="og:description" content="Kacper Pruszyński — software engineer based in Warsaw. Backend, system design, small experiments.">
+    <meta property="og:title" content="Kacper Pruszyński - backend engineer | plumthedev.cloud">
+    <meta property="og:description" content="Kacper Pruszyński, self-taught backend engineer and team lead from Warsaw. System design, problem solving and work at scale.">
     <meta property="og:url" content="https://plumthedev.cloud">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://plumthedev.cloud/images/open-graph-preview.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Kacper Pruszyński – software engineer | plumthedev.cloud">
-    <meta name="twitter:description" content="Kacper Pruszyński — software engineer based in Warsaw. Backend, system design, small experiments.">
+    <meta name="twitter:title" content="Kacper Pruszyński - backend engineer | plumthedev.cloud">
+    <meta name="twitter:description" content="Kacper Pruszyński, self-taught backend engineer and team lead from Warsaw. System design, problem solving and work at scale.">
     <meta name="twitter:image" content="https://plumthedev.cloud/images/open-graph-preview.png">
     <link rel="canonical" href="https://plumthedev.cloud/">
     <link rel="icon" href="./assets/images/favicon.svg"/>
@@ -25,26 +25,52 @@
 <div class="page">
     <header>
         <h1>Kacper Pruszyński</h1>
+        <canvas class="led" id="led" role="img" aria-label="plumthedev"></canvas>
+        <p class="motto">Getting to mastery requires two elements: knowledge&nbsp;and&nbsp;work.</p>
     </header>
 
     <main>
         <div class="bio">
-            <p>Hi, I'm Kacper — a software engineer based in Warsaw.</p>
-            <p>I work mostly on the backend, where things are invisible when they're done right. I like system design, clear boundaries, and code that's easy to read a year later. Most of my time goes into figuring out how pieces should talk to each other, and then making sure they do.</p>
-            <p>Currently I'm a software engineer at Telgani, KSA — designing services, shaping architecture, reviewing code, and helping the team ship things that stay boring in production.</p>
-            <p>Outside of work I build small experiments, run a homelab, and occasionally contribute to open source. Some of it ends up useful. Most of it is just the joy of trying to build things.</p>
+            <p>Hi, I'm Kacper, a backend engineer from Warsaw. I lead the backend team at Telgani, the largest car rental app in the Middle East, where I design services and make sure they run reliably in production.</p>
+            <p>I'm self-taught. I started in high school with PHP, MySQL, JavaScript and HTML and I have been building things ever since. I like setting goals and working hard to reach them, at work and outside of it.</p>
         </div>
 
         <table class="links">
-            <tr><th>cv</th><td><a href="cv/cv.pdf" target="_blank" rel="noopener noreferrer">cv.pdf</a></td></tr>
+            <tr><th>cv</th><td><button type="button" id="print">print this page</button></td></tr>
             <tr><th>github</th><td><a href="https://github.com/plumthedev" target="_blank" rel="noopener noreferrer">github.com/plumthedev</a></td></tr>
             <tr><th>linkedin</th><td><a href="https://www.linkedin.com/in/plumthedev/" target="_blank" rel="noopener noreferrer">linkedin.com/in/plumthedev</a></td></tr>
             <tr><th>e-mail</th><td><a href="mailto:kacper.pruszynski99@gmail.com" target="_blank" rel="noopener noreferrer">kacper.pruszynski99@gmail.com</a></td></tr>
         </table>
 
-        <section class="stack">
-            <p class="label">tech stack</p>
-            <canvas class="led" id="led" role="img" aria-label=""></canvas>
+        <section>
+            <h2>path</h2>
+            <table>
+                <tr><th>2023 - now</th><td>Backend architect and team lead at Telgani. I take care of the architecture, review code and lead a small backend team.</td></tr>
+                <tr><th>2021 - 2023</th><td>Backend engineer at Telgani, through PROEXE. I moved fully to backend work, learned the cloud, built event-driven communication between services and helped split a large monolith into modules.</td></tr>
+                <tr><th>2019 - 2020</th><td>Compania and Move Closer. I stopped building WordPress sites, learned Laravel and worked on my first real applications with people who knew much more than I did.</td></tr>
+                <tr><th>2017 - 2019</th><td>AdDesigner and Mindcloud. My first contract, websites built from scratch and my first clients. I also taught kids aged 5 to 13 to code using Minecraft, which taught me a lot of patience.</td></tr>
+                <tr><th>before</th><td>High school, many evenings and a lot of PHP.</td></tr>
+                <tr><th>also</th><td>I wrote a Laravel course for StrefaKursów.pl and contributed to the Laravel framework.</td></tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>how I work</h2>
+            <table>
+                <tr><th>design</th><td>I start with boundaries. Which service owns the data, how services communicate and what happens when one of them fails. Then I write code.</td></tr>
+                <tr><th>problems</th><td>I spend most of the time understanding the problem. Once I know what it really is, I look for the simplest solution that solves it.</td></tr>
+                <tr><th>scale</th><td>Thousands of bookings go through Telgani every day, so retries, slow dependencies and traffic spikes are normal. I plan for them early and measure before I optimise.</td></tr>
+                <tr><th>open mind</th><td>I don't have a favourite pattern or tool. I use heavier approaches like event sourcing where consistency really needs them and keep things simple elsewhere. I prefer improving a system step by step over rewriting it.</td></tr>
+                <tr><th>agents</th><td>I use AI coding agents every day. I decide on the direction and review the result, and the agent does most of the typing.</td></tr>
+                <tr><th>concepts</th><td>Backend Development, API Design, System Design, Event-Driven Architecture, Caching, Durable Workflows, Cloud Infrastructure, Homelab, Agentic Coding</td></tr>
+                <tr><th>tools</th><td>PHP, Laravel, TypeScript, Node.js, NestJS, MySQL, Redis, Elasticsearch, RabbitMQ, AWS, Docker, Temporal, Linux</td></tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>off the clock</h2>
+            <p>I like football and I love ski jumping. I will never jump myself, but I like to imagine the adrenaline the jumpers feel. I listen to electronic music, house and hip-hop, and one day I would like to make my own tracks in FL Studio.</p>
+            <p>I have three cats and I like to cook (some people even like the food). I swim at the pool, run a home network and drink coffee from a moka pot with a lot of milk.</p>
         </section>
     </main>
 
@@ -67,15 +93,17 @@
   "@type": "Person",
   "name": "Kacper Pruszyński",
   "alternateName": ["Kacper Pruszynski", "plumthedev"],
-  "jobTitle": "Software Engineer",
-  "description": "Software engineer based in Warsaw. Backend, system design, small experiments.",
+  "jobTitle": "Backend Architect & Team Lead",
+  "description": "Self-taught backend engineer and team lead from Warsaw. System design, problem solving and work at scale.",
   "url": "https://plumthedev.cloud/",
   "image": "https://plumthedev.cloud/images/open-graph-preview.png",
   "worksFor": { "@type": "Organization", "name": "Telgani" },
   "address": { "@type": "PostalAddress", "addressLocality": "Warsaw", "addressCountry": "PL" },
   "knowsAbout": [
-    "Backend Development", "API Design", "System Design", "MySQL", "Caching", "Elasticsearch",
-    "Durable Workflows", "Linux", "Docker", "Cloud Infrastructure", "Homelab", "Agentic Coding"
+    "Backend Development", "API Design", "System Design", "Event-Driven Architecture", "Caching",
+    "Durable Workflows", "Cloud Infrastructure", "Homelab", "Agentic Coding",
+    "PHP", "Laravel", "TypeScript", "Node.js", "NestJS", "MySQL", "Redis", "Elasticsearch",
+    "RabbitMQ", "AWS", "Docker", "Temporal", "Linux"
   ],
   "sameAs": [
     "https://github.com/plumthedev",
